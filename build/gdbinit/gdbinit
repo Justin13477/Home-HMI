@@ -1,0 +1,2 @@
+source C:/dev/ESP_IDF/Home_HMI/build/gdbinit/symbols
+source C:/dev/ESP_IDF/Home_HMI/build/gdbinit/connect
