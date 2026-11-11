@@ -212,6 +212,7 @@ static esp_err_t lvgl_init(void)
         .panel_handle = panel_handle,
         .control_handle = panel_handle,
         .buffer_size = (H_size * V_size * ((BITS_PER_PIXEL + 7) / 8)),
+        //.buffer_size = H_size * 100 * 2,
         .double_buffer = true,
         .hres = H_size,
         .vres = V_size,

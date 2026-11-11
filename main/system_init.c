@@ -128,6 +128,10 @@ void system_init(void)
     gpio_extra_set_level(false);
     MAIN_INFO("LED initialized to OFF state");
     init_styles();
+
+    wifi_init_sta();
+    mqtt_manager_init("mqtt://192.168.0.129:1883");
+    mqtt_manager_start();
 }
 
 /*---------------------------------------------------------------

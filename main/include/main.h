@@ -16,7 +16,9 @@
 #include "bsp_display.h"
 #include "bsp_illuminate.h"
 #include "bsp_i2c.h"
-
+#include "wifi_manager.h"
+#include "mqtt_manager.h"
+#include "system_init.h"
 
 
 /*---------------------------------------------------------------

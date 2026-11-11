@@ -68,10 +68,14 @@ void init_header_sm_label_style(lv_style_t *style);
 // init flashcard sytles
 void init_flashcard_button_style(lv_style_t * style);
 void init_flashcard_button_pressed_style(lv_style_t * style);
-void init_flashcard_content_style(lv_style_t *style);
+
+// text area and keyboard styles
+void init_textarea_style(lv_style_t* style);
+void init_textarea_focused_style(lv_style_t* style);
+void init_textarea_cursor_style(lv_style_t* style);
 
 // apply styles
-void apply_base_style(lv_obj_t *obj);   // for backgrounc containers
+void apply_base_style(lv_obj_t* obj); // screen style
 void apply_main_style(lv_obj_t *obj);   // for front containers
 void apply_flashcard_style(lv_obj_t *obj);
 
@@ -88,6 +92,10 @@ void apply_header_sm_label_style(lv_obj_t *obj);
 
 void apply_flashcard_button_pressed_style(lv_obj_t *obj);
 void apply_flashcard_button_style(lv_obj_t *obj);
-void apply_flashcard_content_style(lv_obj_t *obj);
+
+void apply_textarea_style(lv_obj_t* obj);
+void apply_textarea_focused_style(lv_obj_t* obj);
+void apply_textarea_cursor_style(lv_obj_t* obj);
+
 #endif
 

@@ -2,7 +2,7 @@
     "configurations": [
         {
             "name": "ESP-IDF",
-            "compileCommands": "${workspaceFolder}/build/compile_commands.json",
+            "compileCommands": "c:\\dev\\ESP_IDF\\Home_HMI\\build\\compile_commands.json",
             "includePath": [
                 "${workspaceFolder}",
                 "${workspaceFolder}/build/config",
