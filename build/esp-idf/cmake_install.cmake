@@ -609,6 +609,36 @@ endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
+  include("C:/dev/ESP_IDF/Home_HMI/build/esp-idf/util/cmake_install.cmake")
+endif()
+
+if(NOT CMAKE_INSTALL_LOCAL_ONLY)
+  # Include the install script for the subdirectory.
+  include("C:/dev/ESP_IDF/Home_HMI/build/esp-idf/network/cmake_install.cmake")
+endif()
+
+if(NOT CMAKE_INSTALL_LOCAL_ONLY)
+  # Include the install script for the subdirectory.
+  include("C:/dev/ESP_IDF/Home_HMI/build/esp-idf/data_handlers/cmake_install.cmake")
+endif()
+
+if(NOT CMAKE_INSTALL_LOCAL_ONLY)
+  # Include the install script for the subdirectory.
+  include("C:/dev/ESP_IDF/Home_HMI/build/esp-idf/data/cmake_install.cmake")
+endif()
+
+if(NOT CMAKE_INSTALL_LOCAL_ONLY)
+  # Include the install script for the subdirectory.
+  include("C:/dev/ESP_IDF/Home_HMI/build/esp-idf/ui/cmake_install.cmake")
+endif()
+
+if(NOT CMAKE_INSTALL_LOCAL_ONLY)
+  # Include the install script for the subdirectory.
+  include("C:/dev/ESP_IDF/Home_HMI/build/esp-idf/components/cmake_install.cmake")
+endif()
+
+if(NOT CMAKE_INSTALL_LOCAL_ONLY)
+  # Include the install script for the subdirectory.
   include("C:/dev/ESP_IDF/Home_HMI/build/esp-idf/espressif__esp_hosted/cmake_install.cmake")
 endif()
 

@@ -196,6 +196,20 @@ C:/dev/ESP_IDF/Home_HMI/build/esp-idf/espressif__esp_lvgl_port/liblvgl_port_lib.
 C:/dev/ESP_IDF/Home_HMI/build/esp-idf/bsp_illuminate/libbsp_illuminate.a
 C:/dev/ESP_IDF/Home_HMI/build/esp-idf/espressif__esp_lcd_ek79007/libespressif__esp_lcd_ek79007.a
 C:/dev/ESP_IDF/Home_HMI/build/esp-idf/bsp_display/libbsp_display.a
+C:/dev/ESP_IDF/Home_HMI/build/esp-idf/util/libutil.a
+C:/dev/ESP_IDF/Home_HMI/build/esp-idf/network/libnetwork.a
+C:/dev/ESP_IDF/Home_HMI/build/esp-idf/mqtt/libmqtt.a
+C:/dev/ESP_IDF/Home_HMI/build/esp-idf/util/libutil.a
+C:/dev/ESP_IDF/Home_HMI/build/esp-idf/data_handlers/libdata_handlers.a
+C:/dev/ESP_IDF/Home_HMI/build/esp-idf/json/libjson.a
+C:/dev/ESP_IDF/Home_HMI/build/esp-idf/data/libdata.a
+C:/dev/ESP_IDF/Home_HMI/build/esp-idf/network/libnetwork.a
+C:/dev/ESP_IDF/Home_HMI/build/esp-idf/data_handlers/libdata_handlers.a
+C:/dev/ESP_IDF/Home_HMI/build/esp-idf/ui/libui.a
+C:/dev/ESP_IDF/Home_HMI/build/esp-idf/components/libcomponents.a
+C:/dev/ESP_IDF/Home_HMI/build/esp-idf/ui/libui.a
+C:/dev/ESP_IDF/Home_HMI/build/esp-idf/data/libdata.a
+C:/dev/ESP_IDF/Home_HMI/build/esp-idf/components/libcomponents.a
 C:/dev/ESP_IDF/Home_HMI/build/esp-idf/espressif__esp_serial_slave_link/libespressif__esp_serial_slave_link.a
 C:/dev/ESP_IDF/Home_HMI/build/esp-idf/espressif__eppp_link/libespressif__eppp_link.a
 C:/dev/ESP_IDF/Home_HMI/build/esp-idf/esp_eth/libesp_eth.a
@@ -204,5 +218,3 @@ C:/dev/ESP_IDF/Home_HMI/build/esp-idf/espressif__esp_wifi_remote/libespressif__e
 C:/dev/ESP_IDF/Home_HMI/build/esp-idf/main/libmain.a
 C:/dev/ESP_IDF/Home_HMI/build/esp-idf/bsp_extra/libbsp_extra.a
 C:/dev/ESP_IDF/Home_HMI/build/esp-idf/bsp_illuminate/libbsp_illuminate.a
-C:/dev/ESP_IDF/Home_HMI/build/esp-idf/json/libjson.a
-C:/dev/ESP_IDF/Home_HMI/build/esp-idf/mqtt/libmqtt.a

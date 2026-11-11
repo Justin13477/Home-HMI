@@ -7,5 +7,4 @@ endif()
 
 idf_component_register(SRCS ${component_sources}
                         INCLUDE_DIRS "include"
-                        REQUIRES ${i2c_driver_dependency})
-
+                        REQUIRES ${i2c_driver_dependency} log)

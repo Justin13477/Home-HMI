@@ -6,6 +6,9 @@
 #include <stdio.h>
 #define TAG_MAP_CAPACITY 32
 
+
+
+
 typedef struct {
     const char *topic;
 

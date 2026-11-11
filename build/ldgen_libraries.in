@@ -196,6 +196,20 @@ $<TARGET_FILE:lvgl_port_lib>
 $<TARGET_FILE:idf::bsp_illuminate>
 $<TARGET_FILE:__idf_espressif__esp_lcd_ek79007>
 $<TARGET_FILE:__idf_bsp_display>
+$<TARGET_FILE:idf::util>
+$<TARGET_FILE:idf::network>
+$<TARGET_FILE:__idf_mqtt>
+$<TARGET_FILE:__idf_util>
+$<TARGET_FILE:idf::data_handlers>
+$<TARGET_FILE:__idf_json>
+$<TARGET_FILE:idf::data>
+$<TARGET_FILE:__idf_network>
+$<TARGET_FILE:__idf_data_handlers>
+$<TARGET_FILE:idf::ui>
+$<TARGET_FILE:__idf_components>
+$<TARGET_FILE:__idf_ui>
+$<TARGET_FILE:__idf_data>
+$<TARGET_FILE:idf::components>
 $<TARGET_FILE:idf::espressif__esp_serial_slave_link>
 $<TARGET_FILE:idf::espressif__eppp_link>
 $<TARGET_FILE:__idf_esp_eth>
@@ -204,5 +218,3 @@ $<TARGET_FILE:idf::espressif__esp_wifi_remote>
 $<TARGET_FILE:idf::main>
 $<TARGET_FILE:__idf_bsp_extra>
 $<TARGET_FILE:__idf_bsp_illuminate>
-$<TARGET_FILE:__idf_json>
-$<TARGET_FILE:__idf_mqtt>

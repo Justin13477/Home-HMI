@@ -1,6 +1,5 @@
 #include "system_init.h"
-#include "main.h"
-#include "ui_styles.h"
+
 
 
 /*---------------------------------------------------------------
@@ -53,7 +52,7 @@ SCREEN
 static void init_fail_handler(const char *module_name, esp_err_t err)
 {
     while (1) {
-        MAIN_ERROR("[%s] init failed: %s", module_name, esp_err_to_name(err));
+        ESP_LOGE(INIT_TAG, "[%s] init failed: %s", module_name, esp_err_to_name(err));
         vTaskDelay(pdMS_TO_TICKS(1000));
     }
 }
@@ -87,46 +86,46 @@ void system_init(void)
     if (err != ESP_OK) {
         init_fail_handler("ldo4", err);
     }
-    MAIN_INFO("LDO3 and LDO4 init success");
+    ESP_LOGI(INIT_TAG, "LDO3 and LDO4 init success");
 
     /* I2C is required by the GT911 touch controller. */
-    MAIN_INFO("Initializing I2C...");
+    ESP_LOGI(INIT_TAG, "Initializing I2C...");
     err = i2c_init();
     if (err != ESP_OK) {
         init_fail_handler("I2C", err);
     }
-    MAIN_INFO("I2C init success");
+    ESP_LOGI(INIT_TAG, "I2C init success");
 
     /* Touch panel (low-level GT911 driver). */
-    MAIN_INFO("Initializing touch panel...");
+    ESP_LOGI(INIT_TAG, "Initializing touch panel...");
     err = touch_init();
     if (err != ESP_OK) {
         init_fail_handler("Touch", err);
     }
-    MAIN_INFO("Touch panel init success");
+    ESP_LOGI(INIT_TAG, "Touch panel init success");
 
     /* LCD + LVGL must be ready before the backlight is turned on. */
     err = display_init();
     if (err != ESP_OK) {
         init_fail_handler("LCD", err);
     }
-    MAIN_INFO("LCD init success");
+    ESP_LOGI(INIT_TAG, "LCD init success");
 
     /* Full brightness. */
     err = set_lcd_blight(100);
     if (err != ESP_OK) {
         init_fail_handler("LCD Backlight", err);
     }
-    MAIN_INFO("LCD backlight opened (brightness: 100)");
+    ESP_LOGI(INIT_TAG, "LCD backlight opened (brightness: 100)");
 
     /* LED GPIO starts off so the UI reflects the initial state. */
-    MAIN_INFO("Initializing GPIO48 for LED...");
+    ESP_LOGI(INIT_TAG, "Initializing GPIO48 for LED...");
     err = gpio_extra_init();
     if (err != ESP_OK) {
         init_fail_handler("GPIO48", err);
     }
     gpio_extra_set_level(false);
-    MAIN_INFO("LED initialized to OFF state");
+    ESP_LOGI(INIT_TAG, "LED initialized to OFF state");
     init_styles();
 
     wifi_init_sta();
