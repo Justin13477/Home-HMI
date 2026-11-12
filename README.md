@@ -122,5 +122,26 @@ This project uses the ESP-IDF build system.
 
 After configuring the ESP-IDF development environment:
 
-```bash
-idf.py set-target esp32p
+idf.py set-target esp32p4
+idf.py build
+
+To flash the firmware:
+
+idf.py -p PORT flash monitor
+
+Replace PORT with the serial port associated with your development board.
+
+Additional hardware and component dependencies may be required depending on the project configuration.
+
+Project Philosophy
+
+This project is intended to be more than a functional home automation interface.
+
+It is an opportunity to develop a deeper understanding of embedded software engineering, including firmware architecture, real-time operating systems, peripheral communication, memory management, and distributed systems.
+
+Development prioritizes modularity, maintainability, and understanding the underlying hardware and software rather than relying on high-level abstractions.
+
+Status: Active Development
+Platform: ESP32-P4
+Language: C
+Framework: ESP-IDF
