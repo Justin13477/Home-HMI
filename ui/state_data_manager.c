@@ -7,16 +7,10 @@
 #include "freertos/semphr.h"
 #include "tag_map.h"
 
-
-
-
 lv_obj_t* active_page = NULL;
 lv_obj_t* old_page = NULL;
 page_state_t current_page_state = PAGE_MAIN;
 page_state_t next_page_state = PAGE_MAIN;
-
-
-
 
 void page_switcher_set_page_state(page_state_t next)
 {
