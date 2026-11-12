@@ -1,7 +1,7 @@
 #include "ui_build.h"
 
 app_data_t *ui_build_snapshot;
-lv_obj_t* keyboard;
+
 
 void update_snapshot_task(void *arg)
 {
@@ -23,9 +23,9 @@ void update_float_label(lv_obj_t* label, float num)
     lv_label_set_text(label, buffer);
 }
 
-lv_obj_t* create_keyboard(lv_obj_t* parent)
+lv_obj_t* ui_build_create_keyboard(lv_obj_t* parent, lv_obj_t* keyboard)
 {
-    lv_obj_t* keyboard = lv_keyboard_create(parent);
+    keyboard = lv_keyboard_create(parent);
     lv_obj_set_size(keyboard, lv_pct(80), lv_pct(40));
     //lv_obj_add_flag(keyboard, LV_OBJ_FLAG_IGNORE_LAYOUT);
     apply_main_style(keyboard);
@@ -34,22 +34,7 @@ lv_obj_t* create_keyboard(lv_obj_t* parent)
     return keyboard;
 }
 
-lv_obj_t* get_keyboard()
-{
-    return keyboard;
-}
 
-static void textarea_focused_cb(lv_event_t *e)
-{
-    lv_obj_t* textarea = lv_event_get_target(e);
-
-
-    ESP_LOGI("KEYBOARD", "Keyboard: %p", keyboard);
-    ESP_LOGI("KEYBOARD", "Target: %p",
-    lv_keyboard_get_textarea(keyboard));
-    
-    lv_keyboard_set_textarea(keyboard, textarea);
-}
 
 lv_obj_t* build_nav_sidebar(lv_obj_t* parent)
 {
@@ -452,7 +437,7 @@ lv_obj_t* build_settings_network_options(lv_obj_t* parent)
     lv_obj_set_style_border_opa(network_settings, 0, 0);
     //lv_obj_remove_flag(network_settings, LV_OBJ_FLAG_SCROLLABLE);
 
-        keyboard = create_keyboard(network_settings);
+        keyboard = ui_build_create_keyboard(network_settings, ui_build_get_keyboard());
 
         lv_obj_t* settings_network_wifi_settings = build_settings_section(network_settings, "Network Settings");
 
@@ -491,22 +476,3 @@ lv_obj_t* build_settings_network_options(lv_obj_t* parent)
     return network_settings;
 }
 
-static void settings_wifi_ssid_cb(lv_event_t *e)
-{
-    
-    lv_obj_t *ta = lv_keyboard_get_textarea(keyboard);
-
-    if (ta == NULL) {
-        return;
-    }
-
-    const char *text = lv_textarea_get_text(ta);
-    
-    if (text == NULL) {
-        
-       return;
-    }
-    ESP_LOGI("CB", "Text: %s", text);
-    snprintf(settings.wifi_ssid, sizeof(settings.wifi_ssid), "%s", text);
-    xSemaphoreGive(reconnect_sem);
-}

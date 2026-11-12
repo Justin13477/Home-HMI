@@ -1,10 +1,13 @@
 #ifndef UI_BUILD_H
 #define UI_BUILD_H
 
-#include "ui_styles.h"
 #include "lvgl.h"
-#include "state_data_manager.h"
-#include "esp_log.h"
+#include "esp_log.h"       
+#include "data_manager.h"     
+#include "ui_build_handlers.h"
+#include "ui_styles.h"
+#include "ui_page_switcher.h"
+
 
 
 /*
@@ -20,7 +23,6 @@ Rooms:
 
 */
 extern app_data_t *ui_build_snapshot;
-extern lv_obj_t* keyboard;
 
 typedef lv_obj_t* (*obj_func_t)(lv_obj_t* parent);
 typedef void(*button_cb_t)(lv_event_t* e);
@@ -28,6 +30,8 @@ typedef void(*button_cb_t)(lv_event_t* e);
 void update_snapshot_task(void *arg);
 
 void update_float_label(lv_obj_t* label, float num);
+
+lv_obj_t* ui_build_create_keyboard(lv_obj_t* parent, lv_obj_t* keyboard);
 
 lv_obj_t* create_keyboard(lv_obj_t* parent);
 lv_obj_t* get_keyboard();
@@ -68,11 +72,6 @@ lv_obj_t* build_settings_network_options(lv_obj_t* parent);
 lv_obj_t* build_settings_section(lv_obj_t* parent, const char* header);
 lv_obj_t* build_settings_entry(lv_obj_t* parent, const char* label, const char* placeholder, button_cb_t cb);
 
-
-static void textarea_focused_cb(lv_event_t *e);
-static void settings_wifi_ssid_cb(lv_event_t *e);
-static void settings_wifi_pass_cb(lv_event_t *e);
-static void settings_mqtt_address_cb(lv_event_t *e);
 
 #endif
 

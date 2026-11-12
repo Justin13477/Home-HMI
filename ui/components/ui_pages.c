@@ -40,7 +40,7 @@ lv_obj_t* build_persistent_ui(lv_obj_t* parent)
         lv_obj_set_flex_flow(contents, LV_FLEX_FLOW_COLUMN);
 
             
-        keyboard = create_keyboard(parent);
+        keyboard = ui_build_create_keyboard(parent, ui_build_get_keyboard());
         lv_obj_add_flag(keyboard, LV_OBJ_FLAG_HIDDEN | LV_OBJ_FLAG_FLOATING);
     return contents;
 }

@@ -10,6 +10,7 @@
 #include "esp_err.h"
 #include "esp_log.h"
 #include "system_init.h"
+#include "ui_manager.h"
 
 
 /*---------------------------------------------------------------

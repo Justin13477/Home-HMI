@@ -18,7 +18,7 @@ esp_err_t mqtt_manager_publish(const char *topic, const char *payload, int qos);
 
 bool mqtt_manager_is_connected(void);
 
-const char* get_broker_address();
+const char* mqtt_manager_get_broker_address();
 
-esp_mqtt_client_handle_t get_client();
+esp_mqtt_client_handle_t mqtt_manager_get_client();
 #endif

@@ -1,55 +1,17 @@
-#include "state_data_manager.h"
-
-#include "esp_log.h"
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
-#include "freertos/queue.h"
-#include "freertos/semphr.h"
-#include "tag_map.h"
+#include "ui_manager.h"
 
 lv_obj_t* active_page = NULL;
 lv_obj_t* old_page = NULL;
-page_state_t current_page_state = PAGE_MAIN;
-page_state_t next_page_state = PAGE_MAIN;
 
-void page_switcher_set_page_state(page_state_t next)
-{
-    next_page_state = next;
-}
 
-void set_page_home(lv_event_t *e)
-{
-    (void)e;
-    page_switcher_set_page_state(PAGE_MAIN);
-    ESP_LOGI("STATE_DATA_MANAGER", "Switching to Home page");
-}
 
-void set_page_settings(lv_event_t *e)
-{
-    (void)e;
-    page_switcher_set_page_state(PAGE_SETTINGS);
-    ESP_LOGI("STATE_DATA_MANAGER", "Switching to Settings page");
-}
-void set_page_climate(lv_event_t *e)
-{
-    (void)e;
-    page_switcher_set_page_state(PAGE_CLIMATE);
-    ESP_LOGI("STATE_DATA_MANAGER", "Switching to Climate page");
-}
-
-void set_page_lighting(lv_event_t *e)
-{
-    (void)e;
-    page_switcher_set_page_state(PAGE_LIGHTING);
-    ESP_LOGI("STATE_DATA_MANAGER", "Switching to Lighting page");
-}
 
 void load_new_page()
 {
     ui_build_snapshot = get_data_snapshot();
     if (current_page_state != next_page_state) {
         current_page_state = next_page_state;
-        lv_obj_delete(get_keyboard());
+        lv_obj_delete(ui_build_get_keyboard());
         switch (current_page_state) {
             case PAGE_MAIN:
                 old_page = active_page;
@@ -84,7 +46,7 @@ void load_new_page()
     if(inactive_time > UI_INACTIVITY_TIMEOUT)
     {
         if(current_page_state != next_page_state)
-            lv_obj_delete(get_keyboard());
+            lv_obj_delete(ui_build_get_keyboard());
         switch (current_page_state) {
             case PAGE_MAIN:
                 old_page = active_page;

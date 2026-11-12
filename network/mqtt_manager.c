@@ -10,9 +10,14 @@ QueueHandle_t data_queue;
 
 static const char* broker_address;
 
-esp_mqtt_client_handle_t get_client()
+esp_mqtt_client_handle_t mqtt_manager_get_client()
 {
     return mqtt_client;
+}
+
+const char* mqtt_manager_get_broker_address()
+{
+    return broker_address;
 }
 
 static void mqtt_event_handler(
@@ -174,7 +179,3 @@ bool mqtt_manager_is_connected(void)
     return mqtt_connected;
 }
 
-const char* get_broker_address()
-{
-    return broker_address;
-}

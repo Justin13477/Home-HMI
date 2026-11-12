@@ -25,7 +25,7 @@ void init_network_data()
     snprintf(settings.wifi_pass, sizeof(settings.wifi_pass), "%s", (char*)wifi_config.sta.password);
 
 
-    snprintf(settings.mqtt_address, sizeof(settings.mqtt_address), "%s", get_broker_address());
+    snprintf(settings.mqtt_address, sizeof(settings.mqtt_address), "%s", mqtt_manager_get_broker_address());
 }
 
 void init_app_data_handlers()
@@ -85,10 +85,10 @@ void network_task(void *arg)
             ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_STA, &cfg));
             esp_wifi_connect();
 
-            ESP_ERROR_CHECK(esp_mqtt_client_disconnect(get_client()));
-            ESP_ERROR_CHECK(esp_mqtt_client_set_uri(get_client(), settings.mqtt_address));
+            ESP_ERROR_CHECK(esp_mqtt_client_disconnect(mqtt_manager_get_client()));
+            ESP_ERROR_CHECK(esp_mqtt_client_set_uri(mqtt_manager_get_client(), settings.mqtt_address));
 
-            ESP_ERROR_CHECK(esp_mqtt_client_reconnect(get_client()));
+            ESP_ERROR_CHECK(esp_mqtt_client_reconnect(mqtt_manager_get_client()));
         }
     }
 }

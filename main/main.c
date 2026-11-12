@@ -1,6 +1,5 @@
 #include "main.h"
-#include "state_data_manager.h"
-#include "ui_build.h"
+
 
 void app_main(void)
 {

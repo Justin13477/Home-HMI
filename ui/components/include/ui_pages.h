@@ -2,7 +2,7 @@
 #define UI_PAGES_H
 
 #include "ui_build.h"
-#include "state_data_manager.h"
+
 
 
 extern lv_obj_t* main_page;
