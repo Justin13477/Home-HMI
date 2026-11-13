@@ -93,6 +93,15 @@ lv_obj_t* build_climate_page()
 
         lv_obj_t* header_ribbon_h = build_header_ribbon(contents, build_header_ribbon_page_climate);
 
+        lv_obj_t* container = lv_obj_create(contents);
+        apply_main_style(container);
+        lv_obj_set_size(container, lv_pct(100), lv_pct(100));
+        lv_obj_set_flex_flow(container, LV_FLEX_FLOW_ROW);
+
+        lv_obj_t* temp_bar = build_climate_data_bar_temp(container);
+        lv_obj_t* hum_bar = build_climate_data_bar_hum(container);
+
+        lv_obj_t* thermastat = build_climate_data_thermastat(container);
         
     return climate_page;
 }

@@ -13,4 +13,6 @@ void settings_wifi_ssid_cb(lv_event_t *e);
 void settings_wifi_pass_cb(lv_event_t *e);
 void settings_mqtt_address_cb(lv_event_t *e);
 
+void climate_spinbox_increment_cb(lv_event_t* e);
+void climate_spinbox_decrement_cb(lv_event_t* e);
 #endif

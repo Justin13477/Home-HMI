@@ -476,3 +476,113 @@ lv_obj_t* build_settings_network_options(lv_obj_t* parent)
     return network_settings;
 }
 
+lv_obj_t* build_climate_data_bar(lv_obj_t* parent, const char* label, uint32_t value)
+{
+    char buf[32];
+    snprintf(buf, sizeof(buf), "%d", (int)value);
+
+    lv_obj_t* data_base = lv_obj_create(parent);
+    apply_main_style(data_base);
+    lv_obj_set_size(data_base, lv_pct(15), lv_pct(40));
+    lv_obj_set_flex_flow(data_base, LV_FLEX_FLOW_COLUMN);
+    lv_obj_set_flex_align(data_base, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
+    lv_obj_set_style_border_opa(data_base, 0, 0);
+
+        lv_obj_t* data_bar = lv_bar_create(data_base);
+        lv_bar_set_mode(data_bar, LV_BAR_MODE_NORMAL);
+        lv_bar_set_value(data_bar, value, LV_ANIM_ON);
+        lv_obj_set_size(data_bar, 20, 120);
+
+        if(value >= 0 && value < 60)
+            apply_bar_blue_style(data_bar);
+        else if(value > 60 && value <= 75)
+            apply_bar_green_style(data_bar);
+        else if(value > 75 && value <= 90)
+            apply_bar_yellow_style(data_bar);
+        else if(value > 90 && value < 101)
+            apply_bar_red_style(data_bar);
+        
+        
+
+        lv_obj_t* data_info = lv_obj_create(data_base);
+        apply_main_style(data_info);
+        lv_obj_set_flex_flow(data_info, LV_FLEX_FLOW_ROW);
+        lv_obj_set_flex_align(data_info, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
+        lv_obj_set_size(data_info, lv_pct(100), lv_pct(25));
+
+            lv_obj_t* data_label = lv_label_create(data_info);
+            apply_header_sm_label_style(data_label);
+            lv_label_set_text(data_label, label);
+            lv_obj_center(data_label);
+
+            lv_obj_t* value_label = lv_label_create(data_info);
+            apply_header_sm_label_style(value_label);
+            lv_label_set_text(value_label, buf);
+            lv_obj_center(value_label);
+    return data_base;
+}
+
+lv_obj_t* build_climate_data_bar_temp(lv_obj_t* parent)
+{
+    return build_climate_data_bar(parent, "Temp", (uint32_t)ui_build_snapshot->bedroom->temp);
+}
+
+lv_obj_t* build_climate_data_bar_hum(lv_obj_t* parent)
+{
+    return build_climate_data_bar(parent, "Hum", (uint32_t)ui_build_snapshot->bedroom->hum);
+}
+
+lv_obj_t* build_climate_data_thermastat(lv_obj_t* parent)
+{
+    // line meter 
+    // spinbox
+
+    // get average when more sensors are added
+
+    int temp = (int)ui_build_snapshot->bedroom->temp;
+    char buf[32];
+    snprintf(buf, sizeof(buf), "%d", temp);
+
+    lv_obj_t* thermastat = lv_obj_create(parent);
+    apply_main_style(thermastat);
+    lv_obj_set_size(thermastat, lv_pct(40), lv_pct(40));
+    lv_obj_set_flex_flow(thermastat, LV_FLEX_FLOW_COLUMN);
+    lv_obj_set_flex_align(thermastat, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
+
+    lv_obj_t* thermastat_arc = lv_arc_create(thermastat);
+    lv_obj_set_flex_flow(thermastat_arc, LV_FLEX_FLOW_ROW);
+    lv_obj_set_flex_align(thermastat_arc, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_SPACE_BETWEEN);
+    apply_arc_indicator_style(thermastat_arc);
+    lv_arc_set_value(thermastat_arc, temp);
+    lv_obj_remove_style(thermastat_arc, NULL, LV_PART_KNOB);
+    lv_obj_remove_flag(thermastat_arc, LV_OBJ_FLAG_CLICKABLE);
+
+        lv_obj_t* arc_temp = lv_label_create(thermastat_arc);
+        apply_header_sm_label_style(arc_temp);
+        lv_label_set_text(arc_temp, buf);
+
+    lv_obj_t* spinbox = lv_obj_create(thermastat);
+    apply_main_style(spinbox);
+    lv_obj_set_flex_flow(spinbox, LV_FLEX_FLOW_ROW);
+    lv_obj_set_flex_align(spinbox, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
+    lv_obj_set_size(spinbox, lv_pct(100), lv_pct(25));
+
+        lv_obj_t* spinbox_button_dec = lv_button_create(spinbox);
+        apply_nav_button_style(spinbox_button_dec);
+        lv_obj_set_size(spinbox_button_dec, lv_pct(25), lv_pct(100));
+            lv_obj_t* button_dec_icon = lv_label_create(spinbox_button_dec);
+            apply_spinbox_button_icon_style(button_dec_icon);
+            lv_label_set_text(button_dec_icon, LV_SYMBOL_MINUS);
+
+        lv_obj_t* thermastat_spinbox = lv_spinbox_create(spinbox);
+        lv_obj_set_size(thermastat_spinbox, lv_pct(25), lv_pct(85));
+
+        lv_obj_t* spinbox_button_inc = lv_button_create(spinbox);
+        apply_nav_button_style(spinbox_button_inc);
+        lv_obj_set_size(spinbox_button_inc, lv_pct(20), lv_pct(100));
+            lv_obj_t* button_inc_icon = lv_label_create(spinbox_button_inc);
+            apply_spinbox_button_icon_style(button_inc_icon);
+            lv_label_set_text(button_inc_icon, LV_SYMBOL_PLUS);
+
+    return thermastat;
+}

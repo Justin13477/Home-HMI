@@ -72,6 +72,12 @@ lv_obj_t* build_settings_network_options(lv_obj_t* parent);
 lv_obj_t* build_settings_section(lv_obj_t* parent, const char* header);
 lv_obj_t* build_settings_entry(lv_obj_t* parent, const char* label, const char* placeholder, button_cb_t cb);
 
+lv_obj_t* build_climate_data_bar(lv_obj_t* parent, const char* label, uint32_t value);
+lv_obj_t* build_climate_data_bar_temp(lv_obj_t* parent);
+lv_obj_t* build_climate_data_bar_hum(lv_obj_t* parent);
+
+lv_obj_t* build_climate_data_thermastat(lv_obj_t* parent);
+
 
 #endif
 

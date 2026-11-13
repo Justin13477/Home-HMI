@@ -28,74 +28,88 @@
 
 #include "lvgl.h"
 
-extern const lv_image_dsc_t noise_texture1;
-
-// sleek minimalist theme
-extern lv_style_t style_base;
-extern lv_style_t style_main;
-
-extern lv_style_t style_nav_button;
-extern lv_style_t style_nav_button_pressed;
-
-extern lv_style_t style_nav_button_prim_label;
-extern lv_style_t style_nav_button_icon_label;
-
-extern lv_style_t style_header_big_label;
-extern lv_style_t style_header_sm_label;
 
 // init styles
 void init_styles();
 
+
 // container styles
 void init_base_style(lv_style_t *style);
+void apply_base_style(lv_obj_t* obj); // screen style
+
 void init_main_style(lv_style_t *style);
+void apply_main_style(lv_obj_t *obj);   // for front containers
+
 void init_flashcard_style(lv_style_t * style);
+void apply_flashcard_style(lv_obj_t *obj);
 
-// init nav button styles
+
+
+// nav button styles
 void init_nav_button_styles(lv_style_t *style);
+
 void init_nav_button_style(lv_style_t *style);
+void apply_nav_button_style(lv_obj_t *obj);
+
 void init_nav_button_pressed_style(lv_style_t *style);
+void apply_nav_button_pressed_style(lv_obj_t *obj);
 
-// init label style
+// nav button label style
 void init_nav_button_prim_label_style(lv_style_t *style);
+void apply_nav_button_prim_label_style(lv_obj_t *obj);
+
 void init_nav_button_icon_label_style(lv_style_t *style);
+void apply_nav_button_icon_label_style(lv_obj_t *obj);
 
-// init generic label styles
+
+
+// generic label styles
 void init_header_big_label_style(lv_style_t * style);
+void apply_header_big_label_style(lv_obj_t *obj);
+
 void init_header_sm_label_style(lv_style_t *style);
+void apply_header_sm_label_style(lv_obj_t *obj);
 
 
-// init flashcard sytles
+
+// init and apply flashcard sytles
 void init_flashcard_button_style(lv_style_t * style);
+void apply_flashcard_button_style(lv_obj_t *obj);
+
 void init_flashcard_button_pressed_style(lv_style_t * style);
+void apply_flashcard_button_pressed_style(lv_obj_t *obj);
 
 // text area and keyboard styles
 void init_textarea_style(lv_style_t* style);
-void init_textarea_focused_style(lv_style_t* style);
-void init_textarea_cursor_style(lv_style_t* style);
-
-// apply styles
-void apply_base_style(lv_obj_t* obj); // screen style
-void apply_main_style(lv_obj_t *obj);   // for front containers
-void apply_flashcard_style(lv_obj_t *obj);
-
-// apply button styles
-void apply_nav_button_style(lv_obj_t *obj);
-void apply_nav_button_pressed_style(lv_obj_t *obj);
-
-// apply label styles
-void apply_nav_button_prim_label_style(lv_obj_t *obj);
-void apply_nav_button_icon_label_style(lv_obj_t *obj);
-
-void apply_header_big_label_style(lv_obj_t *obj);
-void apply_header_sm_label_style(lv_obj_t *obj);
-
-void apply_flashcard_button_pressed_style(lv_obj_t *obj);
-void apply_flashcard_button_style(lv_obj_t *obj);
-
 void apply_textarea_style(lv_obj_t* obj);
+
+void init_textarea_focused_style(lv_style_t* style);
 void apply_textarea_focused_style(lv_obj_t* obj);
+
+void init_textarea_cursor_style(lv_style_t* style);
 void apply_textarea_cursor_style(lv_obj_t* obj);
+
+void init_bar_green_style(lv_style_t* style);
+void apply_bar_green_style(lv_obj_t* obj);
+
+void init_bar_red_style(lv_style_t* style);
+void apply_bar_red_style(lv_obj_t* obj);
+
+void init_bar_yellow_style(lv_style_t* style);
+void apply_bar_yellow_style(lv_obj_t* obj);
+
+void init_bar_blue_style(lv_style_t* style);
+void apply_bar_blue_style(lv_obj_t* obj);
+
+void init_arc_indicator_style(lv_style_t* style);
+void apply_arc_indicator_style(lv_obj_t* obj);
+
+
+void init_spinbox_style(lv_style_t* style);
+void apply_spinbox_style(lv_obj_t* obj);
+
+void init_spinbox_button_icon_style(lv_style_t* style);
+void apply_spinbox_button_icon_style(lv_obj_t* obj);
 
 #endif
 
