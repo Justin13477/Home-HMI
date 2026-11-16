@@ -43,3 +43,18 @@ void settings_wifi_ssid_cb(lv_event_t *e)
     snprintf(settings.wifi_ssid, sizeof(settings.wifi_ssid), "%s", text);
     xSemaphoreGive(reconnect_sem);
 }
+
+void set_handler_cb(ui_page_switcher_cb_t cb)
+{
+    callback = cb;
+}
+
+void flashcard_climate_cb(lv_event_t* e)
+{
+    callback(PAGE_CLIMATE);
+}
+void flashcard_lighting_cb(lv_event_t* e)
+{
+    callback(PAGE_LIGHTING);
+}
+

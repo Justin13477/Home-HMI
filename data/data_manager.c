@@ -1,9 +1,12 @@
 #include "data_manager.h"
 
 tag_map_t map = {0};
-room_data_t bedroom = {0};
+sensor_data_t sensors = {0};
+
 app_data_t data = {0};
 app_data_t data_snapshot = {0};
+dtime_t dtime;
+
 settings_t settings = {0};
 
 wifi_config_t wifi_config;
@@ -16,7 +19,12 @@ void init_app_data()
 {
     data_mutex = xSemaphoreCreateMutex();
     reconnect_sem = xSemaphoreCreateBinary();
-    data.bedroom = &bedroom;
+    
+    sensors.sht41_state = SENSOR_STATUS_OFFLINE;
+    sensors.veml7700_state = SENSOR_STATUS_OFFLINE;
+
+    data.sensors = &sensors;
+    data.dtime = &dtime;
 }
 void init_network_data()
 {
@@ -30,8 +38,11 @@ void init_network_data()
 
 void init_app_data_handlers()
 {
-    tag_map_insert(&map, "home/bedroom/sensor/veml7700/data", bedroom_sensor_veml770_data_handler);
-    tag_map_insert(&map, "home/bedroom/sensor/sht41/data", bedroom_sensor_sht41_data_handler);
+    tag_map_insert(&map, "home/sensor/veml7700/data", sensor_veml770_data_handler);
+    tag_map_insert(&map, "home/sensor/veml7700/state", sensor_veml770_state_handler);
+
+    tag_map_insert(&map, "home/sensor/sht41/data", sensor_sht41_data_handler);
+    tag_map_insert(&map, "home/sensor/sht41/state", sensor_sht41_state_handler);
 }
 void init_data()
 {
@@ -45,6 +56,7 @@ app_data_t* get_data_snapshot()
 {
     xSemaphoreTake(data_mutex, portMAX_DELAY);
 
+    update_time();
     data_snapshot = data;
 
     xSemaphoreGive(data_mutex);
@@ -93,4 +105,18 @@ void network_task(void *arg)
     }
 }
 
+void update_time()
+{
+    struct tm time_info;
 
+    if (!time_manager_get_time(&time_info))
+    {
+        return;
+    }
+
+
+    strftime(dtime.time, sizeof(dtime.time), "%I:%M %p", &time_info);
+    
+    strftime(dtime.date, sizeof(dtime.date), "%a, %b %d", &time_info);
+    
+}

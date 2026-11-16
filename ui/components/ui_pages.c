@@ -59,9 +59,8 @@ lv_obj_t* build_main_page()
 
             apply_main_style(flashcard_area);
 
-                lv_obj_t* temp_flashcard = build_flashcard_temp(flashcard_area);
-                lv_obj_t* hum_flashcard = build_flashcard_hum(flashcard_area);
-                lv_obj_t* lumen_flashcard = build_flashcard_lumen(flashcard_area);
+                lv_obj_t* climate_flashcard = build_flashcard_climate(flashcard_area);
+                lv_obj_t* lighting_flashcard = build_flashcard_lighting(flashcard_area);
                 
 
     return main_page;
@@ -93,15 +92,7 @@ lv_obj_t* build_climate_page()
 
         lv_obj_t* header_ribbon_h = build_header_ribbon(contents, build_header_ribbon_page_climate);
 
-        lv_obj_t* container = lv_obj_create(contents);
-        apply_main_style(container);
-        lv_obj_set_size(container, lv_pct(100), lv_pct(100));
-        lv_obj_set_flex_flow(container, LV_FLEX_FLOW_ROW);
-
-        lv_obj_t* temp_bar = build_climate_data_bar_temp(container);
-        lv_obj_t* hum_bar = build_climate_data_bar_hum(container);
-
-        lv_obj_t* thermastat = build_climate_data_thermastat(container);
+        lv_obj_t* climate = build_climate_contents(contents);
         
     return climate_page;
 }

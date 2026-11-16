@@ -31,6 +31,8 @@ void update_snapshot_task(void *arg);
 
 void update_float_label(lv_obj_t* label, float num);
 
+void init_handlers(ui_page_switcher_cb_t cb);
+
 lv_obj_t* ui_build_create_keyboard(lv_obj_t* parent, lv_obj_t* keyboard);
 
 lv_obj_t* create_keyboard(lv_obj_t* parent);
@@ -55,23 +57,21 @@ lv_obj_t* build_header_ribbon_page_lighting(lv_obj_t* parent);
 
 lv_obj_t* build_header_ribbon_timestamp(lv_obj_t* parent); // take a time and date struct
 
-lv_obj_t* build_flashcard_base(lv_obj_t* parent, const char* icon, const char* label, obj_func_t content_func); // take a pointer to state struct
-lv_obj_t* build_flashcard_content_base1(lv_obj_t* parent, const char* label1, float num);
+lv_obj_t* build_flashcard_base(lv_obj_t* parent, const char* icon, const char* label, obj_func_t content_func, lv_event_cb_t cb); // take a pointer to state struct
+lv_obj_t* build_flashcard_content_base1(lv_obj_t* parent, const char* label1, float num, uint8_t state);
 
-lv_obj_t* build_flashcard_temp(lv_obj_t* parent);
-lv_obj_t* build_flashcard_temp_content(lv_obj_t* parent); // take a small struct of temp readings
+lv_obj_t* build_flashcard_climate(lv_obj_t* parent);
+lv_obj_t* build_flashcard_climate_content(lv_obj_t* parent);
 
-lv_obj_t* build_flashcard_hum(lv_obj_t* parent); // small struct for lumen readings
-lv_obj_t* build_flashcard_hum_content(lv_obj_t* parent); // small
-
-lv_obj_t* build_flashcard_lumen(lv_obj_t* parent); // small struct for lumen readings
-lv_obj_t* build_flashcard_lumen_content(lv_obj_t* parent); // small
+lv_obj_t* build_flashcard_lighting(lv_obj_t* parent); // lighting quick controls
+lv_obj_t* build_flashcard_lighting_content(lv_obj_t* parent);
 
 lv_obj_t* build_settings_network_options(lv_obj_t* parent);
 
 lv_obj_t* build_settings_section(lv_obj_t* parent, const char* header);
 lv_obj_t* build_settings_entry(lv_obj_t* parent, const char* label, const char* placeholder, button_cb_t cb);
 
+lv_obj_t* build_climate_contents(lv_obj_t* climate);
 lv_obj_t* build_climate_data_bar(lv_obj_t* parent, const char* label, uint32_t value);
 lv_obj_t* build_climate_data_bar_temp(lv_obj_t* parent);
 lv_obj_t* build_climate_data_bar_hum(lv_obj_t* parent);

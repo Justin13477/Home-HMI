@@ -27,11 +27,14 @@ lv_style_t style_bar_yellow;
 lv_style_t style_bar_blue;
 
 
-lv_style_t style_arc_indicator;
+lv_style_t style_arc_indicator_green;
+lv_style_t style_arc_indicator_red;
+lv_style_t style_arc_indicator_yellow;
+lv_style_t style_arc_indicator_blue;
 
-
-lv_style_t style_spinbox;
 lv_style_t style_spinbox_button_icon;
+
+lv_style_t style_led;
 
 
 void init_styles()
@@ -61,7 +64,12 @@ void init_styles()
     init_bar_yellow_style(&style_bar_yellow);
     init_bar_blue_style(&style_bar_blue);
 
-    init_arc_indicator_style(&style_arc_indicator);
+    init_arc_indicator_green_style(&style_arc_indicator_green);
+    init_arc_indicator_red_style(&style_arc_indicator_red);
+    init_arc_indicator_yellow_style(&style_arc_indicator_yellow);
+    init_arc_indicator_blue_style(&style_arc_indicator_blue);
+
+    init_led_style(&style_led);
 }
 
 void init_base_style(lv_style_t *style)
@@ -258,8 +266,11 @@ void init_textarea_style(lv_style_t* style)
         lv_style_set_bg_color(style, lv_color_hex(COLOR_PRIM_S));
         lv_style_set_border_width(style, 2);
         lv_style_set_border_color(style, lv_color_hex(COLOR_BORDER));
+        lv_style_set_text_color(style, lv_color_hex(COLOR_SEC_TEXT));
 
         lv_style_set_radius(style, 8);
+
+        lv_style_set_text_align(style, LV_TEXT_ALIGN_CENTER);
 }
 
 void apply_textarea_style(lv_obj_t* obj)
@@ -267,6 +278,7 @@ void apply_textarea_style(lv_obj_t* obj)
     lv_obj_add_style(obj, &style_textarea, LV_STATE_DEFAULT);
     apply_textarea_focused_style(obj);
     apply_textarea_cursor_style(obj);
+    
 }
 
 void init_textarea_focused_style(lv_style_t* style)
@@ -350,28 +362,53 @@ void apply_bar_blue_style(lv_obj_t* obj)
     lv_obj_add_style(obj, &style_bar_blue, LV_PART_INDICATOR);
 }
 
-void init_arc_indicator_style(lv_style_t* style)
+void init_arc_indicator_green_style(lv_style_t* style)
+{
+    lv_style_init(style);
+        lv_style_set_arc_opa(style, LV_OPA_COVER);
+        lv_style_set_arc_color(style, lv_color_hex(COLOR_SUCCESS));
+    
+}
+
+void apply_arc_indicator_green_style(lv_obj_t* obj)
+{
+    lv_obj_add_style(obj, &style_arc_indicator_green, LV_PART_INDICATOR);
+}
+
+void init_arc_indicator_red_style(lv_style_t* style)
+{
+    lv_style_init(style);
+        lv_style_set_arc_opa(style, LV_OPA_COVER);
+        lv_style_set_arc_color(style, lv_color_hex(COLOR_ERROR));
+}
+
+void apply_arc_indicator_red_style(lv_obj_t* obj)
+{
+    lv_obj_add_style(obj, &style_arc_indicator_red, LV_PART_INDICATOR);
+}
+
+void init_arc_indicator_yellow_style(lv_style_t* style)
+{
+    lv_style_init(style);
+        lv_style_set_arc_opa(style, LV_OPA_COVER);
+        lv_style_set_arc_color(style, lv_color_hex(COLOR_WARNING));
+}
+
+void apply_arc_indicator_yellow_style(lv_obj_t* obj)
+{
+    lv_obj_add_style(obj, &style_arc_indicator_yellow, LV_PART_INDICATOR);
+}
+
+void init_arc_indicator_blue_style(lv_style_t* style)
 {
     lv_style_init(style);
         lv_style_set_arc_opa(style, LV_OPA_COVER);
         lv_style_set_arc_color(style, lv_color_hex(COLOR_PRIM_AC));
-    
 }
 
-void apply_arc_indicator_style(lv_obj_t* obj)
+void apply_arc_indicator_blue_style(lv_obj_t* obj)
 {
-    lv_obj_add_style(obj, &style_arc_indicator, LV_PART_INDICATOR);
-}
-
-
-void init_spinbox_style(lv_style_t* style)
-{
-    lv_style_init(style);
-}
-
-void apply_spinbox_style(lv_obj_t* obj)
-{
-
+    lv_obj_add_style(obj, &style_arc_indicator_blue, LV_PART_INDICATOR);
 }
 
 void init_spinbox_button_icon_style(lv_style_t* style)
@@ -388,3 +425,13 @@ void apply_spinbox_button_icon_style(lv_obj_t* obj)
         
 }
 
+void init_led_style(lv_style_t* style)
+{
+    lv_style_init(style);
+    lv_style_set_bg_color(style, lv_color_hex(COLOR_ERROR));
+    
+}
+void apply_led_style(lv_obj_t* obj)
+{
+    lv_obj_add_style(obj, &style_led, LV_PART_MAIN);
+}

@@ -73,16 +73,27 @@ static void mqtt_event_handler(
 
             esp_mqtt_client_subscribe(
                 mqtt_client,
-                "home/bedroom/sensor/sht41/data",
+                "home/sensor/sht41/data",
                 1
             );
 
             esp_mqtt_client_subscribe(
                 mqtt_client,
-                "home/bedroom/sensor/veml7700/data",
+                "home/sensor/sht41/state",
                 1
             );
 
+            esp_mqtt_client_subscribe(
+                mqtt_client,
+                "home/sensor/veml7700/data",
+                1
+            );
+            
+            esp_mqtt_client_subscribe(
+                mqtt_client,
+                "home/sensor/veml7700/state",
+                1
+            );
             break;
 
 

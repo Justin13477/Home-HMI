@@ -4,9 +4,12 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdio.h>
+#include <stdbool.h>
 #define TAG_MAP_CAPACITY 32
 
-
+#define SENSOR_STATUS_OFFLINE   (1U << 1)
+#define SENSOR_STATUS_ONLINE    (1U << 2)
+#define SENSOR_STATUS_ERROR     (1U << 3)
 
 
 typedef struct {
@@ -16,26 +19,15 @@ typedef struct {
     uint32_t payload_len;
 } mqtt_q_message_t; // for passing through queue
 
-typedef enum 
-{
-    SENSOR_ONLINE,
-    SENSOR_OFFLINE,
-    SENSOR_ERROR
-} sensor_state_t;
-
 typedef struct {
     float temp;
     float hum;
-    sensor_state_t sht41_state;
+    uint8_t sht41_state; // use bit manipulation for state
 
     float lux;
-    sensor_state_t veml7700_state;
+    uint8_t veml7700_state;
 
-} room_data_t; // data for each room
-
-typedef struct {
-    room_data_t *bedroom;
-} app_data_t; // all app data
+} sensor_data_t; // data for each room
 
 typedef struct 
 {
@@ -43,6 +35,17 @@ typedef struct
     char wifi_pass[64];
     char mqtt_address[32];
 } settings_t;
+
+typedef struct { 
+    char time[16];
+    char date[16];
+} dtime_t;
+typedef struct {
+    sensor_data_t *sensors;
+    dtime_t *dtime;
+} app_data_t; // all app data
+
+
 
 
 typedef void (*tag_handler_t)(app_data_t *data, const char* payload, uint32_t length); // hanlder function pointer type
@@ -72,6 +75,16 @@ typedef struct {
 typedef struct {
     tag_entry_t entries[TAG_MAP_CAPACITY];
 } tag_map_t; // tag map
+
+
+typedef enum {
+    PAGE_MAIN,
+    PAGE_SETTINGS,
+    PAGE_CLIMATE,
+    PAGE_LIGHTING
+} page_state_t;
+
+typedef void (*ui_page_switcher_cb_t)(page_state_t state);
 
 
 #endif

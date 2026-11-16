@@ -23,6 +23,8 @@ void update_float_label(lv_obj_t* label, float num)
     lv_label_set_text(label, buffer);
 }
 
+
+
 lv_obj_t* ui_build_create_keyboard(lv_obj_t* parent, lv_obj_t* keyboard)
 {
     keyboard = lv_keyboard_create(parent);
@@ -34,7 +36,10 @@ lv_obj_t* ui_build_create_keyboard(lv_obj_t* parent, lv_obj_t* keyboard)
     return keyboard;
 }
 
-
+void init_handlers(ui_page_switcher_cb_t cb)
+{
+    set_handler_cb(cb);
+}
 
 lv_obj_t* build_nav_sidebar(lv_obj_t* parent)
 {
@@ -179,17 +184,17 @@ lv_obj_t* build_header_ribbon_timestamp(lv_obj_t* parent)
         
         lv_obj_t* ribbon_timestamp_label_date = lv_label_create(ribbon_timestamp);
         apply_header_sm_label_style(ribbon_timestamp_label_date);
-        lv_label_set_text(ribbon_timestamp_label_date, "Date Here");
+        lv_label_set_text(ribbon_timestamp_label_date, ui_build_snapshot->dtime->time);
 
         lv_obj_t* ribbon_timestamp_label_time = lv_label_create(ribbon_timestamp);
         apply_header_sm_label_style(ribbon_timestamp_label_time);
-        lv_label_set_text(ribbon_timestamp_label_time, "Time Here");
+        lv_label_set_text(ribbon_timestamp_label_time, ui_build_snapshot->dtime->date);
     return ribbon_timestamp;
 }
 
 
 
-lv_obj_t* build_flashcard_base(lv_obj_t* parent, const char* icon, const char* label, obj_func_t content_func)                           
+lv_obj_t* build_flashcard_base(lv_obj_t* parent, const char* icon, const char* label, obj_func_t content_func, lv_event_cb_t cb)                           
 {
     lv_obj_t* flashcard = lv_obj_create(parent);
     lv_obj_set_size(flashcard, lv_pct(49), lv_pct(48));
@@ -199,6 +204,7 @@ lv_obj_t* build_flashcard_base(lv_obj_t* parent, const char* icon, const char* l
         lv_obj_t* flashcard_header = lv_button_create(flashcard);
         lv_obj_set_size(flashcard_header, lv_pct(100), lv_pct(29));
         apply_flashcard_button_style(flashcard_header);
+        lv_obj_add_event_cb(flashcard_header, cb, LV_EVENT_CLICKED, NULL);
         lv_obj_set_flex_align(flashcard_header, 
                             LV_FLEX_ALIGN_SPACE_BETWEEN,
                             LV_FLEX_ALIGN_CENTER,
@@ -220,11 +226,13 @@ lv_obj_t* build_flashcard_base(lv_obj_t* parent, const char* icon, const char* l
     return flashcard;
 }
 
-lv_obj_t* build_flashcard_content_base1(lv_obj_t* parent, const char* label1, float num)
+lv_obj_t* build_flashcard_content_base1(lv_obj_t* parent, const char* label1, float num, uint8_t state)
 {
     
     lv_obj_t* flashcard_content = lv_obj_create(parent);
     apply_main_style(flashcard_content);
+    lv_obj_set_size(flashcard_content, lv_pct(100), lv_pct(38));
+
     lv_obj_remove_flag(flashcard_content, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_set_style_pad_left(flashcard_content, 20, 0);
     lv_obj_set_style_pad_right(flashcard_content, 20, 0);
@@ -234,10 +242,33 @@ lv_obj_t* build_flashcard_content_base1(lv_obj_t* parent, const char* label1, fl
                         LV_FLEX_ALIGN_CENTER, 
                         LV_FLEX_ALIGN_CENTER);
 
-        lv_obj_t* flashcard_content_label1 = lv_label_create(flashcard_content);
-        apply_header_sm_label_style(flashcard_content_label1);
-        
-        lv_label_set_text(flashcard_content_label1, label1);
+        lv_obj_t* flashcard_left = lv_obj_create(flashcard_content);
+        apply_main_style(flashcard_left);
+        lv_obj_set_style_border_opa(flashcard_left, 0, 0);
+        lv_obj_remove_flag(flashcard_left, LV_OBJ_FLAG_SCROLLABLE);
+        lv_obj_remove_style(flashcard_left, NULL, LV_PART_SCROLLBAR);
+        lv_obj_set_flex_flow(flashcard_left, LV_FLEX_FLOW_ROW);
+        lv_obj_set_flex_align(flashcard_left, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
+        lv_obj_set_size(flashcard_left, lv_pct(60), lv_pct(100));
+
+            lv_obj_t* flashcard_content_label1 = lv_label_create(flashcard_left);
+            apply_header_sm_label_style(flashcard_content_label1);
+            
+            lv_label_set_text(flashcard_content_label1, label1);
+
+            lv_obj_t* led = lv_led_create(flashcard_left);
+            apply_led_style(led);
+            lv_obj_set_size(led, 10, 10);
+
+            switch(state)
+            {
+            case SENSOR_STATUS_ONLINE:
+                lv_led_on(led);
+                break;
+            case SENSOR_STATUS_OFFLINE:
+                lv_led_off(led);
+                break;
+            }
 
         lv_obj_t* flashcard_content_label2 = lv_label_create(flashcard_content);
         lv_obj_set_style_text_color(flashcard_content_label2, lv_color_hex(COLOR_PRIM_AC), 0);
@@ -248,15 +279,15 @@ lv_obj_t* build_flashcard_content_base1(lv_obj_t* parent, const char* label1, fl
     return flashcard_content;
 }
 
-lv_obj_t* build_flashcard_temp_content(lv_obj_t* parent)
+lv_obj_t* build_flashcard_climate_content(lv_obj_t* parent)
 {
-    
+    sensor_data_t *sensors = ui_build_snapshot->sensors;
 
-    lv_obj_t* flashcard_temp_content = lv_obj_create(parent);
-    apply_main_style(flashcard_temp_content);
-    lv_obj_set_size(flashcard_temp_content, lv_pct(100), lv_pct(65));
-    lv_obj_set_flex_flow(flashcard_temp_content, LV_FLEX_FLOW_COLUMN);  
-    lv_obj_set_style_border_opa(flashcard_temp_content, LV_OPA_0, 0);
+    lv_obj_t* flashcard_content = lv_obj_create(parent);
+    apply_main_style(flashcard_content);
+    lv_obj_set_size(flashcard_content, lv_pct(100), lv_pct(65));
+    lv_obj_set_flex_flow(flashcard_content, LV_FLEX_FLOW_COLUMN);  
+    lv_obj_set_style_border_opa(flashcard_content, LV_OPA_0, 0);
 
     /*
 Rooms:
@@ -269,117 +300,44 @@ Rooms:
   - Mudroom
 */
 
-        lv_obj_t* flashcard_temp_content_bedroom = build_flashcard_content_base1(flashcard_temp_content, "Bedroom", ui_build_snapshot->bedroom->temp);
-        lv_obj_set_size(flashcard_temp_content_bedroom, lv_pct(100), lv_pct(30));
+        lv_obj_t* flashcard_temp_content = build_flashcard_content_base1(flashcard_content, "Temp", sensors->temp, sensors->sht41_state);
 
+        lv_obj_t* flashcard_hum_content = build_flashcard_content_base1(flashcard_content, "Hum", sensors->hum, sensors->veml7700_state);
 
-        lv_obj_t* flashcard_temp_content_bathroom = build_flashcard_content_base1(flashcard_temp_content, "Bathroom", 0);
-        lv_obj_set_size(flashcard_temp_content_bathroom, lv_pct(100), lv_pct(30));
-
-        lv_obj_t* flashcard_temp_content_living_room = build_flashcard_content_base1(flashcard_temp_content, "Living Room", 0);
-        lv_obj_set_size(flashcard_temp_content_living_room, lv_pct(100), lv_pct(30));
-
-        lv_obj_t* flashcard_temp_content_kitchen = build_flashcard_content_base1(flashcard_temp_content, "Kitchen", 0);
-        lv_obj_set_size(flashcard_temp_content_kitchen, lv_pct(100), lv_pct(30));
-
-        lv_obj_t* flashcard_temp_content_2nd_bedroom = build_flashcard_content_base1(flashcard_temp_content, "2nd Bedroom", 0);
-        lv_obj_set_size(flashcard_temp_content_2nd_bedroom, lv_pct(100), lv_pct(30));
-
-        lv_obj_t* flashcard_temp_content_washroom = build_flashcard_content_base1(flashcard_temp_content, "Washroom", 0);
-        lv_obj_set_size(flashcard_temp_content_washroom, lv_pct(100), lv_pct(30));
+        //lv_obj_t* flashcard_aq_content = build_flashcard_content_base1(flashcard_temp_content, "Temp", sensors->temp, sensors->sht41_state); for air quality
 
 
 
-    return flashcard_temp_content;
+
+
+    return flashcard_content;
 }
 
-lv_obj_t* build_flashcard_temp(lv_obj_t* parent)
+lv_obj_t* build_flashcard_climate(lv_obj_t* parent)
 {
-    return build_flashcard_base(parent, LV_SYMBOL_WARNING, "Temperature", build_flashcard_temp_content);
+    return build_flashcard_base(parent, LV_SYMBOL_WARNING, "Temperature", build_flashcard_climate_content, flashcard_climate_cb);
 }
 
 
-lv_obj_t* build_flashcard_hum_content(lv_obj_t* parent)
-{
-    lv_obj_t* flashcard_hum_content = lv_obj_create(parent);
-    apply_main_style(flashcard_hum_content);
-    lv_obj_set_size(flashcard_hum_content, lv_pct(100), lv_pct(65));
-    lv_obj_set_flex_flow(flashcard_hum_content, LV_FLEX_FLOW_COLUMN);  
-    lv_obj_set_style_border_opa(flashcard_hum_content, LV_OPA_0, 0);
-
-    /*
-Rooms:
-  - Bedroom
-  - Bathroom
-  - Living Room
-  - Kitchen
-  - 2nd Bedroom
-  - Washroom
-  - Mudroom
-*/
-
-        lv_obj_t* flashcard_hum_content_bedroom = build_flashcard_content_base1(flashcard_hum_content, "Bedroom", ui_build_snapshot->bedroom->hum);
-        lv_obj_set_size(flashcard_hum_content_bedroom, lv_pct(100), lv_pct(30));
 
 
-        lv_obj_t* flashcard_hum_content_bathroom = build_flashcard_content_base1(flashcard_hum_content, "Bathroom", 0);
-        lv_obj_set_size(flashcard_hum_content_bathroom, lv_pct(100), lv_pct(30));
-
-        lv_obj_t* flashcard_hum_content_living_room = build_flashcard_content_base1(flashcard_hum_content, "Living Room", 0);
-        lv_obj_set_size(flashcard_hum_content_living_room, lv_pct(100), lv_pct(30));
-
-        lv_obj_t* flashcard_hum_content_kitchen = build_flashcard_content_base1(flashcard_hum_content, "Kitchen", 0);
-        lv_obj_set_size(flashcard_hum_content_kitchen, lv_pct(100), lv_pct(30));
-
-        lv_obj_t* flashcard_hum_content_2nd_bedroom = build_flashcard_content_base1(flashcard_hum_content, "2nd Bedroom", 0);
-        lv_obj_set_size(flashcard_hum_content_2nd_bedroom, lv_pct(100), lv_pct(30));
-
-        lv_obj_t* flashcard_hum_content_washroom = build_flashcard_content_base1(flashcard_hum_content, "Washroom", 0);
-        lv_obj_set_size(flashcard_hum_content_washroom, lv_pct(100), lv_pct(30));
-
-
-    return flashcard_hum_content;
-}
-
-lv_obj_t* build_flashcard_hum(lv_obj_t* parent)
-{
-    return build_flashcard_base(parent, LV_SYMBOL_LOOP, "Humidity", build_flashcard_hum_content);
-}
-
-lv_obj_t* build_flashcard_lumen_content(lv_obj_t* parent)
+lv_obj_t* build_flashcard_lighting_content(lv_obj_t* parent)
 {
     
-    lv_obj_t* flashcard_lumen_content = lv_obj_create(parent);
-    apply_main_style(flashcard_lumen_content);
-    lv_obj_set_size(flashcard_lumen_content, lv_pct(100), lv_pct(65));
-    lv_obj_set_flex_flow(flashcard_lumen_content, LV_FLEX_FLOW_COLUMN);  
-    lv_obj_set_style_border_opa(flashcard_lumen_content, LV_OPA_0, 0);
+    lv_obj_t* flashcard_lighting_content = lv_obj_create(parent);
+    apply_main_style(flashcard_lighting_content);
+    lv_obj_set_size(flashcard_lighting_content, lv_pct(100), lv_pct(65));
+    lv_obj_set_flex_flow(flashcard_lighting_content, LV_FLEX_FLOW_COLUMN);  
+    lv_obj_set_style_border_opa(flashcard_lighting_content, LV_OPA_0, 0);
 
-        lv_obj_t* flashcard_lumen_content_bedroom = build_flashcard_content_base1(flashcard_lumen_content, "Bedroom", ui_build_snapshot->bedroom->lux);
-        lv_obj_set_size(flashcard_lumen_content_bedroom, lv_pct(100), lv_pct(30));
+        
 
-        lv_obj_t* flashcard_lumen_content_bathroom = build_flashcard_content_base1(flashcard_lumen_content, "Bathroom", 0);
-        lv_obj_set_size(flashcard_lumen_content_bathroom, lv_pct(100), lv_pct(30));
-
-        lv_obj_t* flashcard_lumen_content_living_room = build_flashcard_content_base1(flashcard_lumen_content, "Living Room", 0);
-        lv_obj_set_size(flashcard_lumen_content_living_room, lv_pct(100), lv_pct(30));
-
-        lv_obj_t* flashcard_lumen_content_kitchen = build_flashcard_content_base1(flashcard_lumen_content, "Kitchen", 0);
-        lv_obj_set_size(flashcard_lumen_content_kitchen, lv_pct(100), lv_pct(30));
-
-        lv_obj_t* flashcard_lumen_content_2nd_bedroom = build_flashcard_content_base1(flashcard_lumen_content, "2nd Bedroom", 0);
-        lv_obj_set_size(flashcard_lumen_content_2nd_bedroom, lv_pct(100), lv_pct(30));
-
-        lv_obj_t* flashcard_lumen_content_washroom = build_flashcard_content_base1(flashcard_lumen_content, "Washroom", 0);
-        lv_obj_set_size(flashcard_lumen_content_washroom, lv_pct(100), lv_pct(30));
-
-
-    return flashcard_lumen_content;
+    return flashcard_lighting_content;
 }
 
-lv_obj_t* build_flashcard_lumen(lv_obj_t* parent)
+lv_obj_t* build_flashcard_lighting(lv_obj_t* parent)
 {
-    return build_flashcard_base(parent, LV_SYMBOL_EYE_OPEN, "Lumen", build_flashcard_lumen_content);
+    return build_flashcard_base(parent, LV_SYMBOL_EYE_OPEN, "Lighting", build_flashcard_lighting_content, flashcard_lighting_cb);
 }
 
 lv_obj_t* build_settings_section(lv_obj_t* parent, const char* header)
@@ -483,7 +441,7 @@ lv_obj_t* build_climate_data_bar(lv_obj_t* parent, const char* label, uint32_t v
 
     lv_obj_t* data_base = lv_obj_create(parent);
     apply_main_style(data_base);
-    lv_obj_set_size(data_base, lv_pct(15), lv_pct(40));
+    lv_obj_set_size(data_base, lv_pct(45), lv_pct(48));
     lv_obj_set_flex_flow(data_base, LV_FLEX_FLOW_COLUMN);
     lv_obj_set_flex_align(data_base, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
     lv_obj_set_style_border_opa(data_base, 0, 0);
@@ -509,6 +467,7 @@ lv_obj_t* build_climate_data_bar(lv_obj_t* parent, const char* label, uint32_t v
         lv_obj_set_flex_flow(data_info, LV_FLEX_FLOW_ROW);
         lv_obj_set_flex_align(data_info, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
         lv_obj_set_size(data_info, lv_pct(100), lv_pct(25));
+        lv_obj_set_style_border_opa(data_info, 0, 0);
 
             lv_obj_t* data_label = lv_label_create(data_info);
             apply_header_sm_label_style(data_label);
@@ -524,12 +483,12 @@ lv_obj_t* build_climate_data_bar(lv_obj_t* parent, const char* label, uint32_t v
 
 lv_obj_t* build_climate_data_bar_temp(lv_obj_t* parent)
 {
-    return build_climate_data_bar(parent, "Temp", (uint32_t)ui_build_snapshot->bedroom->temp);
+    return build_climate_data_bar(parent, "Temp", (uint32_t)ui_build_snapshot->sensors->temp);
 }
 
 lv_obj_t* build_climate_data_bar_hum(lv_obj_t* parent)
 {
-    return build_climate_data_bar(parent, "Hum", (uint32_t)ui_build_snapshot->bedroom->hum);
+    return build_climate_data_bar(parent, "Hum", (uint32_t)ui_build_snapshot->sensors->hum);
 }
 
 lv_obj_t* build_climate_data_thermastat(lv_obj_t* parent)
@@ -539,50 +498,104 @@ lv_obj_t* build_climate_data_thermastat(lv_obj_t* parent)
 
     // get average when more sensors are added
 
-    int temp = (int)ui_build_snapshot->bedroom->temp;
+    int temp = (int)ui_build_snapshot->sensors->temp;
     char buf[32];
     snprintf(buf, sizeof(buf), "%d", temp);
 
     lv_obj_t* thermastat = lv_obj_create(parent);
     apply_main_style(thermastat);
-    lv_obj_set_size(thermastat, lv_pct(40), lv_pct(40));
+    lv_obj_set_size(thermastat, lv_pct(35), lv_pct(50));
     lv_obj_set_flex_flow(thermastat, LV_FLEX_FLOW_COLUMN);
     lv_obj_set_flex_align(thermastat, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
+    lv_obj_set_style_border_opa(thermastat, 0, 0);
 
-    lv_obj_t* thermastat_arc = lv_arc_create(thermastat);
-    lv_obj_set_flex_flow(thermastat_arc, LV_FLEX_FLOW_ROW);
-    lv_obj_set_flex_align(thermastat_arc, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_SPACE_BETWEEN);
-    apply_arc_indicator_style(thermastat_arc);
-    lv_arc_set_value(thermastat_arc, temp);
-    lv_obj_remove_style(thermastat_arc, NULL, LV_PART_KNOB);
-    lv_obj_remove_flag(thermastat_arc, LV_OBJ_FLAG_CLICKABLE);
+        lv_obj_t* thermastat_arc = lv_arc_create(thermastat);
+        lv_obj_set_flex_flow(thermastat_arc, LV_FLEX_FLOW_ROW);
+        lv_obj_set_flex_align(thermastat_arc, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_SPACE_BETWEEN);
+        lv_arc_set_value(thermastat_arc, temp);
+        lv_obj_remove_style(thermastat_arc, NULL, LV_PART_KNOB);
+        lv_obj_remove_flag(thermastat_arc, LV_OBJ_FLAG_CLICKABLE);
+        lv_obj_set_style_arc_color(thermastat_arc, lv_color_hex(COLOR_SEC_BG), LV_PART_MAIN);
 
-        lv_obj_t* arc_temp = lv_label_create(thermastat_arc);
-        apply_header_sm_label_style(arc_temp);
-        lv_label_set_text(arc_temp, buf);
+        if(temp >= 0 && temp < 60)
+                apply_arc_indicator_blue_style(thermastat_arc);
+            else if(temp > 60 && temp <= 75)
+                apply_arc_indicator_green_style(thermastat_arc);
+            else if(temp > 75 && temp <= 90)
+                apply_arc_indicator_yellow_style(thermastat_arc);
+            else if(temp > 90 && temp < 101)
+                apply_arc_indicator_red_style(thermastat_arc);
 
-    lv_obj_t* spinbox = lv_obj_create(thermastat);
-    apply_main_style(spinbox);
-    lv_obj_set_flex_flow(spinbox, LV_FLEX_FLOW_ROW);
-    lv_obj_set_flex_align(spinbox, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
-    lv_obj_set_size(spinbox, lv_pct(100), lv_pct(25));
+            lv_obj_t* arc_temp = lv_label_create(thermastat_arc);
+            apply_header_sm_label_style(arc_temp);
+            lv_label_set_text(arc_temp, buf);
 
-        lv_obj_t* spinbox_button_dec = lv_button_create(spinbox);
-        apply_nav_button_style(spinbox_button_dec);
-        lv_obj_set_size(spinbox_button_dec, lv_pct(25), lv_pct(100));
-            lv_obj_t* button_dec_icon = lv_label_create(spinbox_button_dec);
-            apply_spinbox_button_icon_style(button_dec_icon);
-            lv_label_set_text(button_dec_icon, LV_SYMBOL_MINUS);
+        lv_obj_t* spinbox = lv_obj_create(thermastat);
+        apply_main_style(spinbox);
+        lv_obj_set_flex_flow(spinbox, LV_FLEX_FLOW_ROW);
+        lv_obj_set_flex_align(spinbox, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
+        lv_obj_set_size(spinbox, lv_pct(100), lv_pct(25));
+        lv_obj_set_style_border_opa(spinbox, 0, 0);
 
-        lv_obj_t* thermastat_spinbox = lv_spinbox_create(spinbox);
-        lv_obj_set_size(thermastat_spinbox, lv_pct(25), lv_pct(85));
+            lv_obj_t* spinbox_button_dec = lv_button_create(spinbox);
+            apply_nav_button_style(spinbox_button_dec);
+            lv_obj_set_size(spinbox_button_dec, lv_pct(25), lv_pct(100));
+                lv_obj_t* button_dec_icon = lv_label_create(spinbox_button_dec);
+                apply_spinbox_button_icon_style(button_dec_icon);
+                lv_label_set_text(button_dec_icon, LV_SYMBOL_MINUS);
 
-        lv_obj_t* spinbox_button_inc = lv_button_create(spinbox);
-        apply_nav_button_style(spinbox_button_inc);
-        lv_obj_set_size(spinbox_button_inc, lv_pct(20), lv_pct(100));
-            lv_obj_t* button_inc_icon = lv_label_create(spinbox_button_inc);
-            apply_spinbox_button_icon_style(button_inc_icon);
-            lv_label_set_text(button_inc_icon, LV_SYMBOL_PLUS);
+            lv_obj_t* thermastat_spinbox = lv_spinbox_create(spinbox);
+            lv_obj_set_size(thermastat_spinbox, lv_pct(30), lv_pct(85));
+            apply_textarea_style(thermastat_spinbox); // spinbox styling is identical to textarea
+                
+
+
+            lv_obj_t* spinbox_button_inc = lv_button_create(spinbox);
+            apply_nav_button_style(spinbox_button_inc);
+            lv_obj_set_size(spinbox_button_inc, lv_pct(25), lv_pct(100));
+                lv_obj_t* button_inc_icon = lv_label_create(spinbox_button_inc);
+                apply_spinbox_button_icon_style(button_inc_icon);
+                lv_label_set_text(button_inc_icon, LV_SYMBOL_PLUS);
 
     return thermastat;
+}
+
+
+lv_obj_t* build_climate_contents(lv_obj_t* parent)
+{
+    lv_obj_t* climate_contents = lv_obj_create(parent);
+    apply_main_style(climate_contents);
+    lv_obj_set_size(climate_contents, lv_pct(100), lv_pct(80));
+    lv_obj_set_flex_flow(climate_contents, LV_FLEX_FLOW_ROW);
+    lv_obj_set_flex_align(climate_contents, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_SPACE_BETWEEN);
+    lv_obj_set_style_border_opa(climate_contents, 0, 0);
+
+        lv_obj_t* left_container = lv_obj_create(climate_contents);
+        apply_main_style(left_container);
+        lv_obj_set_size(left_container, lv_pct(30), lv_pct(100));
+        lv_obj_set_flex_flow(left_container, LV_FLEX_FLOW_COLUMN);
+        lv_obj_set_flex_align(left_container, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
+        lv_obj_set_style_border_opa(left_container, 0, 0);
+        
+            lv_obj_t* temp_bar = build_climate_data_bar_temp(left_container);
+    
+            lv_obj_t* hum_bar = build_climate_data_bar_hum(left_container);
+
+        lv_obj_t* thermastat = build_climate_data_thermastat(climate_contents);
+
+        lv_obj_t* right_container = lv_obj_create(climate_contents);
+        apply_main_style(right_container);
+        lv_obj_set_size(right_container, lv_pct(30), lv_pct(100));
+        lv_obj_set_flex_flow(right_container, LV_FLEX_FLOW_ROW_WRAP);
+        lv_obj_set_flex_align(right_container, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
+        lv_obj_set_style_border_opa(right_container, 0, 0);
+
+        lv_obj_t* bar1 = build_climate_data_bar_temp(right_container);
+        lv_obj_t* bar2 = build_climate_data_bar_temp(right_container);
+        lv_obj_t* bar3 = build_climate_data_bar_temp(right_container);
+        lv_obj_t* bar4 = build_climate_data_bar_temp(right_container);
+        // air quality bars 
+    return climate_contents;
+
+
 }

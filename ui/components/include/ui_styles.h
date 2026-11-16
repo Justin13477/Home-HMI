@@ -101,15 +101,24 @@ void apply_bar_yellow_style(lv_obj_t* obj);
 void init_bar_blue_style(lv_style_t* style);
 void apply_bar_blue_style(lv_obj_t* obj);
 
-void init_arc_indicator_style(lv_style_t* style);
-void apply_arc_indicator_style(lv_obj_t* obj);
+void init_arc_indicator_green_style(lv_style_t* style);
+void apply_arc_indicator_green_style(lv_obj_t* obj);
 
+void init_arc_indicator_red_style(lv_style_t* style);
+void apply_arc_indicator_red_style(lv_obj_t* obj);
 
-void init_spinbox_style(lv_style_t* style);
-void apply_spinbox_style(lv_obj_t* obj);
+void init_arc_indicator_yellow_style(lv_style_t* style);
+void apply_arc_indicator_yellow_style(lv_obj_t* obj);
+
+void init_arc_indicator_blue_style(lv_style_t* style);
+void apply_arc_indicator_blue_style(lv_obj_t* obj);
+
 
 void init_spinbox_button_icon_style(lv_style_t* style);
 void apply_spinbox_button_icon_style(lv_obj_t* obj);
 
+
+void init_led_style(lv_style_t* style);
+void apply_led_style(lv_obj_t* obj);
 #endif
 

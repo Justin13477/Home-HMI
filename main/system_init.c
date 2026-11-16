@@ -131,6 +131,8 @@ void system_init(void)
     wifi_init_sta();
     mqtt_manager_init("mqtt://192.168.0.129:1883");
     mqtt_manager_start();
+
+    time_manager_init();
 }
 
 /*---------------------------------------------------------------

@@ -84,6 +84,7 @@ void run_task(void *arg)
 
     
     init_data();
+    init_handlers(page_switcher_set_page_state);
 
     ESP_LOGI("STATE_DATA_MANAGER", "System initialized successfully");
 

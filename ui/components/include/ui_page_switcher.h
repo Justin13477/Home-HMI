@@ -3,13 +3,8 @@
 
 #include "lvgl.h"
 #include "esp_log.h"
+#include "datatypes.h"
 
-typedef enum {
-    PAGE_MAIN,
-    PAGE_SETTINGS,
-    PAGE_CLIMATE,
-    PAGE_LIGHTING
-} page_state_t;
 
 extern page_state_t current_page_state;
 extern page_state_t next_page_state;

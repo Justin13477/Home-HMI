@@ -13,6 +13,7 @@
 #include "wifi_manager.h"
 #include "mqtt_manager.h"
 #include "ui_styles.h"
+#include "time_manager.h"
 
 /*---------------------------------------------------------------
  * Logging macros
