@@ -15,16 +15,32 @@ esp_mqtt_client_config_t mqtt_cfg;
 SemaphoreHandle_t data_mutex;
 SemaphoreHandle_t reconnect_sem;
 
-void init_app_data()
+QueueSetHandle_t queue_set;
+
+void init_queues()
 {
+
+    data_queue = xQueueCreate(10, sizeof(mqtt_q_message_t));
+    weather_queue = xQueueCreate(1, sizeof(weather_data_t));
+
     data_mutex = xSemaphoreCreateMutex();
     reconnect_sem = xSemaphoreCreateBinary();
-    
+
+    queue_set = xQueueCreateSet(11);
+
+    xQueueAddToSet(data_queue, queue_set);
+    xQueueAddToSet(weather_queue, queue_set);
+}
+void init_app_data()
+{
+ 
     sensors.sht41_state = SENSOR_STATUS_OFFLINE;
     sensors.veml7700_state = SENSOR_STATUS_OFFLINE;
 
     data.sensors = &sensors;
     data.dtime = &dtime;
+    data.weather_data = NULL;
+
 }
 void init_network_data()
 {
@@ -34,6 +50,8 @@ void init_network_data()
 
 
     snprintf(settings.mqtt_address, sizeof(settings.mqtt_address), "%s", mqtt_manager_get_broker_address());
+
+
 }
 
 void init_app_data_handlers()
@@ -47,7 +65,6 @@ void init_app_data_handlers()
 void init_data()
 {
     init_app_data();
-    init_network_data();
     init_app_data_handlers();
     
 }
@@ -74,12 +91,37 @@ void data_task(void *arg)
 {
     (void)arg;
 
-    mqtt_q_message_t msg;
 
     while(1)
     {
-        if(xQueueReceive(data_queue, &msg, portMAX_DELAY) == pdTRUE)
-            data_manager_process_message(&msg);
+
+        QueueSetMemberHandle_t active_queue;
+
+        active_queue = xQueueSelectFromSet(
+            queue_set,
+            portMAX_DELAY
+        );
+
+        if(active_queue == data_queue)
+        {
+            mqtt_q_message_t msg;
+
+            if(xQueueReceive(data_queue, &msg, 0) == pdPASS)
+            {
+                data_manager_process_message(&msg);
+            }
+        }
+
+        if(active_queue == weather_queue)
+        {
+            weather_data_t* weather = NULL;
+            if(xQueueReceive(weather_queue, &weather, 0) == pdPASS)
+            {
+                data.weather_data = weather;
+                ESP_LOGI("DATA MANAGER", "Received weather ptr queue");
+            }
+            
+        }
     }
 }
 

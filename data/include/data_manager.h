@@ -16,6 +16,8 @@
 extern settings_t settings;                           
 extern SemaphoreHandle_t reconnect_sem;
 
+void init_queues();
+void init_network_data();
 void init_data(); // System Init
 
 app_data_t* get_data_snapshot(); // Getting App Data Snapshot

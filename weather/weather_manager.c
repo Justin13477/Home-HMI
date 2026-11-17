@@ -7,14 +7,18 @@
 #include "esp_crt_bundle.h"
 #include "esp_log.h"
 
-static const char* TAG = "WEATHER_MANAGER";
+#define WEATHER_UPDATE_INTERVAL pdMS_TO_TICKS(30 * 60 * 1000)
 
 #define WEATHER_URL "https://api.open-meteo.com/v1/forecast?latitude=37.14645&longitude=-94.463&daily=daylight_duration,sunrise,sunset,weather_code&hourly=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation_probability,precipitation,snow_depth,weather_code,visibility,wind_speed_10m,wind_direction_10m,wind_gusts_10m&current=temperature_2m,is_day&timezone=auto&wind_speed_unit=mph&temperature_unit=fahrenheit&precipitation_unit=inch&forecast_hours=24" 
 
+static const char* TAG = "WEATHER_MANAGER";
+static esp_http_client_handle_t handle;
 static int response_length = 0;
 static char buffer[4096] = {0};
 
 static weather_data_t weather_data = {0};
+
+QueueHandle_t weather_queue = NULL;
 
 static esp_err_t http_event_handler(esp_http_client_event_t *evt)
 {
@@ -43,37 +47,7 @@ static esp_err_t http_event_handler(esp_http_client_event_t *evt)
 }
 
 
-void weather_manager_init()
-{
-    
-    esp_http_client_config_t config = 
-    {
-        .url = WEATHER_URL, 
-        .method = HTTP_METHOD_GET, 
-        .crt_bundle_attach = esp_crt_bundle_attach, 
-        .timeout_ms = 10000, 
-        .event_handler = http_event_handler
-    };
 
-    esp_http_client_handle_t handle = esp_http_client_init(&config);
-    ESP_ERROR_CHECK(esp_http_client_perform(handle));
-
-    ESP_LOGI(TAG, "HTTP Status: %d", esp_http_client_get_status_code(handle));
-
-    int64_t content_length = esp_http_client_get_content_length(handle);
-    ESP_LOGI(TAG, "Response Length: %", PRId64, content_length);
-
-    ESP_LOGI(TAG, "Response: %s", buffer);
-
-    esp_http_client_cleanup(handle);
-
-    
-}
-
-bool weather_manager_get_data(weather_data_t* data)
-{
-    return weather_data.valid;
-}
 
 void parse_weather_data(char* buffer, size_t size, weather_data_t *data)
 {
@@ -265,13 +239,13 @@ void parse_weather_data(char* buffer, size_t size, weather_data_t *data)
         cJSON* wind_gusts_10m = cJSON_GetObjectItemCaseSensitive(hourly, "wind_gusts_10m");
         if(cJSON_IsArray(wind_gusts_10m))
         {
-            int count = cJSON_GetArraySize(wind_direction_10m);
+            int count = cJSON_GetArraySize(wind_gusts_10m);
             for(int i = 0; i < count && i < WEATHER_HOURLY_COUNT; i++)
             {
                 cJSON* value = cJSON_GetArrayItem(wind_gusts_10m, i);
                 if(cJSON_IsNumber(value))
                 {
-                    data->hourly.wind_direction[i] = (float)value->valuedouble;
+                    data->hourly.wind_gusts[i] = (float)value->valuedouble;
                 }
             }
         }
@@ -290,7 +264,7 @@ void parse_weather_data(char* buffer, size_t size, weather_data_t *data)
                 cJSON* value = cJSON_GetArrayItem(dates, i);
                 if(cJSON_IsString(value))
                 {
-                    snprintf(data->daily.date[i], sizeof(data->daily.date), "%s", value->valuestring);
+                    snprintf(data->daily.date[i], sizeof(data->daily.date[i]), "%s", value->valuestring);
                 }
             }
         }
@@ -329,7 +303,7 @@ void parse_weather_data(char* buffer, size_t size, weather_data_t *data)
             int count = cJSON_GetArraySize(sunrise);
             for(int i = 0; i < count && i < WEATHER_DAILY_COUNT; i++)
             {
-                cJSON* value = cJSON_GetArrayItem(dates, i);
+                cJSON* value = cJSON_GetArrayItem(sunrise, i);
                 if(cJSON_IsString(value))
                 {
                     snprintf(data->daily.sunrise[i], sizeof(data->daily.sunrise[i]), "%s", value->valuestring);
@@ -343,7 +317,7 @@ void parse_weather_data(char* buffer, size_t size, weather_data_t *data)
             int count = cJSON_GetArraySize(sunset);
             for(int i = 0; i < count && i < WEATHER_DAILY_COUNT; i++)
             {
-                cJSON* value = cJSON_GetArrayItem(dates, i);
+                cJSON* value = cJSON_GetArrayItem(sunset, i);
                 if(cJSON_IsString(value))
                 {
                     snprintf(data->daily.sunset[i], sizeof(data->daily.sunset[i]), "%s", value->valuestring);
@@ -352,4 +326,61 @@ void parse_weather_data(char* buffer, size_t size, weather_data_t *data)
         }
 
     }
+    cJSON_Delete(root);
+}
+
+bool weather_manager_get_data(weather_data_t* data)
+{
+    ESP_ERROR_CHECK(esp_http_client_perform(handle));
+
+    ESP_LOGI(TAG, "HTTP Status: %d", esp_http_client_get_status_code(handle));
+
+    int64_t content_length = esp_http_client_get_content_length(handle);
+    ESP_LOGI(TAG, "Response Length: %", PRId64, content_length);
+
+    ESP_LOGI(TAG, "Response: %s", buffer);
+
+    parse_weather_data(buffer, sizeof(buffer), data);
+
+    esp_http_client_cleanup(handle);
+
+    
+    return weather_data.valid;
+}
+
+void weather_manager_task(void *args)
+{
+    (void)args;
+
+    while(1)
+    {
+        vTaskDelay(WEATHER_UPDATE_INTERVAL);
+
+        weather_manager_get_data(&weather_data);
+        xQueueSend(weather_queue, &weather_data, portMAX_DELAY);
+
+        
+    }
+}
+
+void weather_manager_init()
+{
+    
+    esp_http_client_config_t config = 
+    {
+        .url = WEATHER_URL, 
+        .method = HTTP_METHOD_GET, 
+        .crt_bundle_attach = esp_crt_bundle_attach, 
+        .timeout_ms = 10000, 
+        .event_handler = http_event_handler
+    };
+
+    handle = esp_http_client_init(&config);
+    
+    
+
+    weather_manager_get_data(&weather_data);
+    weather_data_t* weather_ptr = &weather_data;
+    xQueueSend(weather_queue, &weather_ptr, portMAX_DELAY);
+    
 }

@@ -282,6 +282,7 @@ lv_obj_t* build_flashcard_content_base1(lv_obj_t* parent, const char* label1, fl
 lv_obj_t* build_flashcard_climate_content(lv_obj_t* parent)
 {
     sensor_data_t *sensors = ui_build_snapshot->sensors;
+    weather_data_t *weather = ui_build_snapshot->weather_data;
 
     lv_obj_t* flashcard_content = lv_obj_create(parent);
     apply_main_style(flashcard_content);
@@ -303,6 +304,9 @@ Rooms:
         lv_obj_t* flashcard_temp_content = build_flashcard_content_base1(flashcard_content, "Temp", sensors->temp, sensors->sht41_state);
 
         lv_obj_t* flashcard_hum_content = build_flashcard_content_base1(flashcard_content, "Hum", sensors->hum, sensors->veml7700_state);
+
+        
+        lv_obj_t* weather_content = build_flashcard_content_base1(flashcard_content, "Current Temp", weather->current.temperature, SENSOR_STATUS_ONLINE);
 
         //lv_obj_t* flashcard_aq_content = build_flashcard_content_base1(flashcard_temp_content, "Temp", sensors->temp, sensors->sht41_state); for air quality
 

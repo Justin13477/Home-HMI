@@ -15,6 +15,7 @@
 #include "ui_styles.h"
 #include "time_manager.h"
 #include "weather_manager.h"
+#include "data_manager.h"
 
 /*---------------------------------------------------------------
  * Logging macros

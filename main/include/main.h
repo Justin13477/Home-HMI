@@ -11,6 +11,7 @@
 #include "esp_log.h"
 #include "system_init.h"
 #include "ui_manager.h"
+#include "weather_manager.h"
 
 
 /*---------------------------------------------------------------

@@ -4,14 +4,17 @@
 #include "cJSON.h"
 #include "wifi_manager.h"
 #include "datatypes.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "freertos/queue.h"
 
 
-
+extern QueueHandle_t weather_queue;
 
 // https://open-meteo.com/
 
 void weather_manager_init();
 
-bool weather_manager_get_data(weather_data_t* data);
+void weather_manager_task(void *args);
 
 #endif

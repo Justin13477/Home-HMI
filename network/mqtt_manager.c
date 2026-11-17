@@ -6,7 +6,7 @@ static const char *TAG = "MQTT";
 
 static esp_mqtt_client_handle_t mqtt_client = NULL;
 static bool mqtt_connected = false;
-QueueHandle_t data_queue;
+QueueHandle_t data_queue = NULL;
 
 static const char* broker_address;
 
@@ -49,7 +49,7 @@ esp_err_t mqtt_manager_init(const char* _broker_address)
         NULL
     );
 
-    data_queue = xQueueCreate(10, sizeof(mqtt_q_message_t));
+    
 
     return ESP_OK;
 }

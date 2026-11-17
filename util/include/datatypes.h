@@ -12,6 +12,72 @@
 #define SENSOR_STATUS_ERROR     (1U << 3)
 
 
+
+#define WEATHER_HOURLY_COUNT 24
+#define WEATHER_DAILY_COUNT 7
+
+typedef struct
+{
+    float temperature;
+    bool is_day;
+} weather_current_t;
+
+
+typedef struct
+{
+    char time[WEATHER_HOURLY_COUNT][20];
+
+    // Temperature
+    float temperature[WEATHER_HOURLY_COUNT];
+    float feels_like[WEATHER_HOURLY_COUNT];
+
+    // Humidity
+    uint8_t humidity[WEATHER_HOURLY_COUNT];
+
+    // Wind
+    float wind_speed[WEATHER_HOURLY_COUNT];
+    uint16_t wind_direction[WEATHER_HOURLY_COUNT];
+    float wind_gusts[WEATHER_HOURLY_COUNT];
+
+    // Weather conditions
+    uint8_t weather_code[WEATHER_HOURLY_COUNT];
+    bool is_day[WEATHER_HOURLY_COUNT];
+
+    // Precipitation
+    uint8_t precipitation_probability[WEATHER_HOURLY_COUNT];
+    float precipitation[WEATHER_HOURLY_COUNT];
+
+    // Other conditions
+    float snow_depth[WEATHER_HOURLY_COUNT];
+    float visibility[WEATHER_HOURLY_COUNT];
+
+} weather_hourly_t;
+
+
+typedef struct
+{
+    char date[WEATHER_DAILY_COUNT][11];
+    uint8_t weather_code[WEATHER_DAILY_COUNT];
+
+    float daylight_duration[WEATHER_DAILY_COUNT];
+
+    char sunrise[WEATHER_DAILY_COUNT][20];
+    char sunset[WEATHER_DAILY_COUNT][20];
+
+} weather_daily_t;
+
+
+typedef struct
+{
+    weather_current_t current;
+    weather_hourly_t hourly;
+    weather_daily_t daily;
+
+    bool valid;
+
+} weather_data_t;
+
+
 typedef struct {
     const char *topic;
 
@@ -43,6 +109,7 @@ typedef struct {
 typedef struct {
     sensor_data_t *sensors;
     dtime_t *dtime;
+    weather_data_t *weather_data;
 } app_data_t; // all app data
 
 
@@ -112,69 +179,6 @@ typedef enum
 
 } weather_code_t;
 
-#define WEATHER_HOURLY_COUNT 24
-#define WEATHER_DAILY_COUNT 7
-
-typedef struct
-{
-    float temperature;
-    bool is_day;
-} weather_current_t;
-
-
-typedef struct
-{
-    char time[WEATHER_HOURLY_COUNT][20];
-
-    // Temperature
-    float temperature[WEATHER_HOURLY_COUNT];
-    float feels_like[WEATHER_HOURLY_COUNT];
-
-    // Humidity
-    uint8_t humidity[WEATHER_HOURLY_COUNT];
-
-    // Wind
-    float wind_speed[WEATHER_HOURLY_COUNT];
-    uint16_t wind_direction[WEATHER_HOURLY_COUNT];
-    float wind_gusts[WEATHER_HOURLY_COUNT];
-
-    // Weather conditions
-    uint8_t weather_code[WEATHER_HOURLY_COUNT];
-    bool is_day[WEATHER_HOURLY_COUNT];
-
-    // Precipitation
-    uint8_t precipitation_probability[WEATHER_HOURLY_COUNT];
-    float precipitation[WEATHER_HOURLY_COUNT];
-
-    // Other conditions
-    float snow_depth[WEATHER_HOURLY_COUNT];
-    float visibility[WEATHER_HOURLY_COUNT];
-
-} weather_hourly_t;
-
-
-typedef struct
-{
-    char date[WEATHER_DAILY_COUNT][11];
-    uint8_t weather_code[WEATHER_DAILY_COUNT];
-
-    float daylight_duration[WEATHER_DAILY_COUNT];
-
-    char sunrise[WEATHER_DAILY_COUNT][20];
-    char sunset[WEATHER_DAILY_COUNT][20];
-
-} weather_daily_t;
-
-
-typedef struct
-{
-    weather_current_t current;
-    weather_hourly_t hourly;
-    weather_daily_t daily;
-
-    bool valid;
-
-} weather_data_t;
 
 
 #endif
