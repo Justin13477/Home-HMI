@@ -1,14 +1,17 @@
 #include "data_manager.h"
 
-tag_map_t map = {0};
-sensor_data_t sensors = {0};
+const char* TAG = "DATA_MANAGER";
 
+tag_map_t map = {0};
+
+// runtime data
 app_data_t data = {0};
 app_data_t data_snapshot = {0};
+sensor_data_t sensors = {0};
 dtime_t dtime;
-
 settings_t settings = {0};
 
+// network handles
 wifi_config_t wifi_config;
 esp_mqtt_client_config_t mqtt_cfg;
 
@@ -21,7 +24,7 @@ void init_queues()
 {
 
     data_queue = xQueueCreate(10, sizeof(mqtt_q_message_t));
-    weather_queue = xQueueCreate(1, sizeof(weather_data_t));
+    weather_queue = xQueueCreate(1, sizeof(weather_data_t *));
 
     data_mutex = xSemaphoreCreateMutex();
     reconnect_sem = xSemaphoreCreateBinary();
@@ -118,7 +121,7 @@ void data_task(void *arg)
             if(xQueueReceive(weather_queue, &weather, 0) == pdPASS)
             {
                 data.weather_data = weather;
-                ESP_LOGI("DATA MANAGER", "Received weather ptr queue");
+                ESP_LOGI(TAG, "Received weather ptr queue");
             }
             
         }

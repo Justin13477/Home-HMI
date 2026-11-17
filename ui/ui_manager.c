@@ -37,7 +37,7 @@ void load_new_page()
                 lv_obj_delete(old_page);
                 break;
         }
-        ESP_LOGI("STATE_DATA_MANAGER", "Page switched to: %d", current_page_state);
+        ESP_LOGI(TAG, "Page switched to: %d", current_page_state);
     }
 
     uint32_t inactive_time = lv_display_get_inactive_time(NULL);
@@ -85,7 +85,7 @@ void run_task(void *arg)
     
     init_handlers(page_switcher_set_page_state);
 
-    ESP_LOGI("UI_MANAGER", "System initialized successfully");
+    ESP_LOGI(TAG, "System initialized successfully");
 
     ui_build_snapshot = get_data_snapshot();
     active_page = build_page(main_page, build_main_page);

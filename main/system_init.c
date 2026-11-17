@@ -127,22 +127,23 @@ void system_init(void)
     gpio_extra_set_level(false);
     ESP_LOGI(INIT_TAG, "LED initialized to OFF state");
 
+    /* Queues, mutexes and handlers must exist before network producers start. */
+    init_queues();
+    init_data();
+
+    init_storage();
+
     wifi_init_sta();
     
     mqtt_manager_init("mqtt://192.168.0.129:1883");
+    init_network_data();
     mqtt_manager_start();
 
     time_manager_init();
 
     init_styles();
 
-    init_queues();
-    init_data();
     weather_manager_init();
-    
-    init_network_data();
-    
-    
 }
 
 /*---------------------------------------------------------------

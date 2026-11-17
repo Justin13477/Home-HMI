@@ -357,7 +357,8 @@ void weather_manager_task(void *args)
         vTaskDelay(WEATHER_UPDATE_INTERVAL);
 
         weather_manager_get_data(&weather_data);
-        xQueueSend(weather_queue, &weather_data, portMAX_DELAY);
+        weather_data_t *weather_ptr = &weather_data;
+        xQueueSend(weather_queue, &weather_ptr, portMAX_DELAY);
 
         
     }

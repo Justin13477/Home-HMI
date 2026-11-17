@@ -16,6 +16,7 @@
 #include "time_manager.h"
 #include "weather_manager.h"
 #include "data_manager.h"
+#include "storage_manager.h"
 
 /*---------------------------------------------------------------
  * Logging macros

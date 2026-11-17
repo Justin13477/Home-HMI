@@ -2,7 +2,7 @@
 
 #include "esp_log.h"
 
-static const char *TAG = "MQTT";
+static const char *TAG = "MQTT_MANAGER";
 
 static esp_mqtt_client_handle_t mqtt_client = NULL;
 static bool mqtt_connected = false;
