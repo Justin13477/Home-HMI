@@ -2,6 +2,7 @@
 #define WIFI_MANAGER_H
 
 #include <string.h>
+#include <stdbool.h>
 
 #include "esp_wifi.h"
 #include "esp_event.h"
@@ -13,5 +14,7 @@
 #include "freertos/event_groups.h"
 
 void wifi_init_sta(void);
+
+bool wifi_connected();
 
 #endif

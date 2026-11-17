@@ -10,6 +10,8 @@
 static const char *TAG = "WIFI_MANAGER";
 static EventGroupHandle_t wifi_event_group;
 
+bool wifi_is_connected;
+
 static void wifi_event_handler(
     void *arg,
     esp_event_base_t event_base,
@@ -28,6 +30,7 @@ static void wifi_event_handler(
     {
         ESP_LOGW(TAG, "Disconnected. Reconnecting...");
         xEventGroupClearBits(wifi_event_group, WIFI_CONNECTED_BIT);
+        wifi_is_connected = false;
         esp_wifi_connect();
     }
 
@@ -38,6 +41,8 @@ static void wifi_event_handler(
 
         ESP_LOGI(TAG, "Connected! IP: " IPSTR,
                  IP2STR(&event->ip_info.ip));
+
+        wifi_is_connected = true;
 
         xEventGroupSetBits(wifi_event_group, WIFI_CONNECTED_BIT);
     }
@@ -103,4 +108,8 @@ void wifi_init_sta(void)
     } else {
         ESP_LOGE(TAG, "UNEXPECTED EVENT");
     }
+}
+
+bool wifi_connected() {
+    return wifi_is_connected;
 }

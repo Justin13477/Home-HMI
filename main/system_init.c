@@ -133,6 +133,8 @@ void system_init(void)
     mqtt_manager_start();
 
     time_manager_init();
+
+    weather_manager_init();
 }
 
 /*---------------------------------------------------------------

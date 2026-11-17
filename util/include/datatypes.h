@@ -87,4 +87,94 @@ typedef enum {
 typedef void (*ui_page_switcher_cb_t)(page_state_t state);
 
 
+typedef enum
+{
+    WEATHER_CLEAR = 0,
+    WEATHER_MAINLY_CLEAR = 1,
+    WEATHER_PARTLY_CLOUDY = 2,
+    WEATHER_OVERCAST = 3,
+    WEATHER_FOG = 45,
+    WEATHER_DRIZZLE_LIGHT = 51,
+    WEATHER_DRIZZLE_MODERATE = 53,
+    WEATHER_DRIZZLE_DENSE = 55,
+    WEATHER_RAIN_LIGHT = 61,
+    WEATHER_RAIN_MODERATE = 63,
+    WEATHER_RAIN_HEAVY = 65,
+    WEATHER_SNOW_LIGHT = 71,
+    WEATHER_SNOW_MODERATE = 73,
+    WEATHER_SNOW_HEAVY = 75,
+    WEATHER_RAIN_SHOWERS_LIGHT = 80,
+    WEATHER_RAIN_SHOWERS_MODERATE = 81,
+    WEATHER_RAIN_SHOWERS_VIOLENT = 82,
+    WEATHER_THUNDERSTORM = 95,
+    WEATHER_THUNDERSTORM_HAIL_LIGHT = 96,
+    WEATHER_THUNDERSTORM_HAIL_HEAVY = 99
+
+} weather_code_t;
+
+#define WEATHER_HOURLY_COUNT 24
+#define WEATHER_DAILY_COUNT 7
+
+typedef struct
+{
+    float temperature;
+    bool is_day;
+} weather_current_t;
+
+
+typedef struct
+{
+    char time[WEATHER_HOURLY_COUNT][20];
+
+    // Temperature
+    float temperature[WEATHER_HOURLY_COUNT];
+    float feels_like[WEATHER_HOURLY_COUNT];
+
+    // Humidity
+    uint8_t humidity[WEATHER_HOURLY_COUNT];
+
+    // Wind
+    float wind_speed[WEATHER_HOURLY_COUNT];
+    uint16_t wind_direction[WEATHER_HOURLY_COUNT];
+    float wind_gusts[WEATHER_HOURLY_COUNT];
+
+    // Weather conditions
+    uint8_t weather_code[WEATHER_HOURLY_COUNT];
+    bool is_day[WEATHER_HOURLY_COUNT];
+
+    // Precipitation
+    uint8_t precipitation_probability[WEATHER_HOURLY_COUNT];
+    float precipitation[WEATHER_HOURLY_COUNT];
+
+    // Other conditions
+    float snow_depth[WEATHER_HOURLY_COUNT];
+    float visibility[WEATHER_HOURLY_COUNT];
+
+} weather_hourly_t;
+
+
+typedef struct
+{
+    char date[WEATHER_DAILY_COUNT][11];
+    uint8_t weather_code[WEATHER_DAILY_COUNT];
+
+    float daylight_duration[WEATHER_DAILY_COUNT];
+
+    char sunrise[WEATHER_DAILY_COUNT][20];
+    char sunset[WEATHER_DAILY_COUNT][20];
+
+} weather_daily_t;
+
+
+typedef struct
+{
+    weather_current_t current;
+    weather_hourly_t hourly;
+    weather_daily_t daily;
+
+    bool valid;
+
+} weather_data_t;
+
+
 #endif

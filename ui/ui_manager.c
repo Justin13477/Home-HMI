@@ -3,8 +3,7 @@
 lv_obj_t* active_page = NULL;
 lv_obj_t* old_page = NULL;
 
-
-
+static const char *TAG = "UI_MANAGER";
 
 void load_new_page()
 {

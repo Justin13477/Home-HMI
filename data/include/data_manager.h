@@ -11,6 +11,7 @@
 #include "freertos/semphr.h"
 #include "tag_map.h"
 #include "time_manager.h"
+#include "weather_manager.h"
 
 extern settings_t settings;                           
 extern SemaphoreHandle_t reconnect_sem;

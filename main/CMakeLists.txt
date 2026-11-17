@@ -17,4 +17,5 @@ idf_component_register(
         network
         ui
         data
+        weather
 )
