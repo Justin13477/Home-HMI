@@ -9,7 +9,6 @@
 #include "ui_page_switcher.h"
 
 
-
 /*
 Rooms:
   - Bedroom
@@ -39,7 +38,7 @@ lv_obj_t* create_keyboard(lv_obj_t* parent);
 lv_obj_t* get_keyboard();
 
 lv_obj_t* build_nav_sidebar(lv_obj_t *parent); // take a struct pointer to update state changes via cb
-lv_obj_t* build_nav_button_base(lv_obj_t* parent, const char* icon, const char* text, lv_event_cb_t cb);
+lv_obj_t* build_nav_button_base(lv_obj_t* parent, const char* icon, const char* text, lv_event_cb_t cb, bool is_img);
 lv_obj_t* build_nav_button_home(lv_obj_t* parent);
 lv_obj_t* build_nav_button_settings(lv_obj_t* parent);
 lv_obj_t* build_nav_button_lighting(lv_obj_t* parent);
@@ -78,6 +77,8 @@ lv_obj_t* build_climate_data_bar_hum(lv_obj_t* parent);
 
 lv_obj_t* build_climate_data_thermastat(lv_obj_t* parent);
 
+lv_obj_t* build_weather_flashcard(lv_obj_t* parent);
 
+lv_obj_t* build_climate_toggle(lv_obj_t* parent);
 #endif
 

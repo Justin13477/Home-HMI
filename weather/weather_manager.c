@@ -9,7 +9,7 @@
 
 #define WEATHER_UPDATE_INTERVAL pdMS_TO_TICKS(30 * 60 * 1000)
 
-#define WEATHER_URL "https://api.open-meteo.com/v1/forecast?latitude=37.14645&longitude=-94.463&daily=daylight_duration,sunrise,sunset,weather_code&hourly=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation_probability,precipitation,snow_depth,weather_code,visibility,wind_speed_10m,wind_direction_10m,wind_gusts_10m&current=temperature_2m,is_day&timezone=auto&wind_speed_unit=mph&temperature_unit=fahrenheit&precipitation_unit=inch&forecast_hours=24" 
+#define WEATHER_URL "https://api.open-meteo.com/v1/forecast?latitude=37.14645&longitude=-94.463&daily=daylight_duration,sunrise,sunset,weather_code&hourly=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation_probability,precipitation,snow_depth,weather_code,visibility,wind_speed_10m,wind_direction_10m,wind_gusts_10m&current=temperature_2m,is_day,weather_code,relative_humidity_2m,apparent_temperature&timezone=auto&wind_speed_unit=mph&temperature_unit=fahrenheit&precipitation_unit=inch&forecast_hours=24" 
 
 static const char* TAG = "WEATHER_MANAGER";
 static esp_http_client_handle_t handle;
@@ -46,7 +46,469 @@ static esp_err_t http_event_handler(esp_http_client_event_t *evt)
     return ESP_OK;
 }
 
+void interpret_weather_code(uint8_t code, weather_code_build_t* weather_code_build, bool is_day)
+{
+    switch(code)
+    {
+        case WEATHER_CLEAR:
+        {
+            ESP_LOGI(TAG, "Interpretting weather code");
+            snprintf(weather_code_build->label, sizeof(weather_code_build->label), "%s", "Clear Weather");
 
+
+            if(is_day)
+            {
+                snprintf(weather_code_build->icon_48, sizeof(weather_code_build->icon_48), "%s", ASSET_ICON_CLEAR_DAY_48);
+                
+                snprintf(weather_code_build->icon_96, sizeof(weather_code_build->icon_96), "%s", ASSET_ICON_CLEAR_DAY_96);
+                
+                
+            }
+            else if(!is_day)
+            {
+                snprintf(weather_code_build->icon_48, sizeof(weather_code_build->icon_48), "%s", ASSET_ICON_CLEAR_NIGHT_48);
+                
+                snprintf(weather_code_build->icon_96, sizeof(weather_code_build->icon_96), "%s", ASSET_ICON_CLEAR_NIGHT_96);
+                
+            }
+            break;
+        }
+        case WEATHER_MAINLY_CLEAR:
+        {
+   
+            snprintf(weather_code_build->label, sizeof(weather_code_build->label), "%s", "Mainly Clear Weather");
+
+            if(is_day)
+            {
+                snprintf(weather_code_build->icon_48, sizeof(weather_code_build->icon_48), "%s", ASSET_ICON_CLEAR_DAY_48);
+                
+                snprintf(weather_code_build->icon_96, sizeof(weather_code_build->icon_96), "%s", ASSET_ICON_CLEAR_DAY_96);
+                
+                
+            }
+            else if(!is_day)
+            {
+                snprintf(weather_code_build->icon_48, sizeof(weather_code_build->icon_48), "%s", ASSET_ICON_CLEAR_NIGHT_48);
+                
+                snprintf(weather_code_build->icon_96, sizeof(weather_code_build->icon_96), "%s", ASSET_ICON_CLEAR_NIGHT_96);
+                
+            }
+            break;
+        }
+        case WEATHER_PARTLY_CLOUDY:
+        {
+
+            snprintf(weather_code_build->label, sizeof(weather_code_build->label), "%s", "Partly Cloudy");
+
+            if(is_day)
+            {
+                snprintf(weather_code_build->icon_48, sizeof(weather_code_build->icon_48), "%s", ASSET_ICON_PARTLY_CLOUDY_DAY_48);
+                
+                snprintf(weather_code_build->icon_96, sizeof(weather_code_build->icon_96), "%s", ASSET_ICON_PARTLY_CLOUDY_DAY_96);
+                
+                
+            }
+            else if(!is_day)
+            {
+                snprintf(weather_code_build->icon_48, sizeof(weather_code_build->icon_48), "%s", ASSET_ICON_PARTLY_CLOUDY_NIGHT_48);
+                
+                snprintf(weather_code_build->icon_96, sizeof(weather_code_build->icon_96), "%s", ASSET_ICON_PARTLY_CLOUDY_NIGHT_96);
+                
+            }
+            break;
+        }
+
+        case WEATHER_OVERCAST:
+        {
+
+            snprintf(weather_code_build->label, sizeof(weather_code_build->label), "%s", "Overcast");
+
+            if(is_day)
+            {
+                snprintf(weather_code_build->icon_48, sizeof(weather_code_build->icon_48), "%s", ASSET_ICON_OVERCAST_DAY_48);
+                
+                snprintf(weather_code_build->icon_96, sizeof(weather_code_build->icon_96), "%s", ASSET_ICON_OVERCAST_DAY_96);
+                
+                
+            }
+            else if(!is_day)
+            {
+                snprintf(weather_code_build->icon_48, sizeof(weather_code_build->icon_48), "%s", ASSET_ICON_OVERCAST_NIGHT_48);
+                
+                snprintf(weather_code_build->icon_96, sizeof(weather_code_build->icon_96), "%s", ASSET_ICON_OVERCAST_NIGHT_96);
+                
+            }
+            break;
+        }
+        case WEATHER_FOG:
+        {
+
+            snprintf(weather_code_build->label, sizeof(weather_code_build->label), "%s", "Fog");
+
+            if(is_day)
+            {
+                snprintf(weather_code_build->icon_48, sizeof(weather_code_build->icon_48), "%s", ASSET_ICON_FOG_48);
+                
+                snprintf(weather_code_build->icon_96, sizeof(weather_code_build->icon_96), "%s", ASSET_ICON_FOG_96);
+                
+                
+            }
+            else if(!is_day)
+            {
+                snprintf(weather_code_build->icon_48, sizeof(weather_code_build->icon_48), "%s", ASSET_ICON_FOG_48);
+                
+                snprintf(weather_code_build->icon_96, sizeof(weather_code_build->icon_96), "%s", ASSET_ICON_FOG_96);
+                
+            }
+            break;
+        }
+        case WEATHER_DRIZZLE_LIGHT:
+        {
+   
+            snprintf(weather_code_build->label, sizeof(weather_code_build->label), "%s", "Light Drizzle");
+
+            if(is_day)
+            {
+                snprintf(weather_code_build->icon_48, sizeof(weather_code_build->icon_48), "%s", ASSET_ICON_RAIN_48);
+                
+                snprintf(weather_code_build->icon_96, sizeof(weather_code_build->icon_96), "%s", ASSET_ICON_RAIN_96);
+                
+                
+            }
+            else if(!is_day)
+            {
+                snprintf(weather_code_build->icon_48, sizeof(weather_code_build->icon_48), "%s", ASSET_ICON_RAIN_48);
+                
+                snprintf(weather_code_build->icon_96, sizeof(weather_code_build->icon_96), "%s", ASSET_ICON_RAIN_96);
+                
+            }
+            break;
+        }
+
+        case WEATHER_DRIZZLE_MODERATE:
+        {
+   
+            snprintf(weather_code_build->label, sizeof(weather_code_build->label), "%s", "Moderate Drizzle");
+
+            if(is_day)
+            {
+                snprintf(weather_code_build->icon_48, sizeof(weather_code_build->icon_48), "%s", ASSET_ICON_RAIN_48);
+                
+                snprintf(weather_code_build->icon_96, sizeof(weather_code_build->icon_96), "%s", ASSET_ICON_RAIN_96);
+                
+                
+            }
+            else if(!is_day)
+            {
+                snprintf(weather_code_build->icon_48, sizeof(weather_code_build->icon_48), "%s", ASSET_ICON_RAIN_48);
+                
+                snprintf(weather_code_build->icon_96, sizeof(weather_code_build->icon_96), "%s", ASSET_ICON_RAIN_96);
+                
+            }
+            break;
+        }
+
+        case WEATHER_DRIZZLE_DENSE:
+        {
+   
+            snprintf(weather_code_build->label, sizeof(weather_code_build->label), "%s", "Dense Drizzle");
+
+            if(is_day)
+            {
+                snprintf(weather_code_build->icon_48, sizeof(weather_code_build->icon_48), "%s", ASSET_ICON_RAIN_48);
+                
+                snprintf(weather_code_build->icon_96, sizeof(weather_code_build->icon_96), "%s", ASSET_ICON_RAIN_96);
+                
+                
+            }
+            else if(!is_day)
+            {
+                snprintf(weather_code_build->icon_48, sizeof(weather_code_build->icon_48), "%s", ASSET_ICON_RAIN_48);
+                
+                snprintf(weather_code_build->icon_96, sizeof(weather_code_build->icon_96), "%s", ASSET_ICON_RAIN_96);
+                
+            }
+            break;
+        }
+
+        case WEATHER_RAIN_LIGHT:
+        {
+   
+            snprintf(weather_code_build->label, sizeof(weather_code_build->label), "%s", "Light Rain");
+
+            if(is_day)
+            {
+                snprintf(weather_code_build->icon_48, sizeof(weather_code_build->icon_48), "%s", ASSET_ICON_RAIN_48);
+                
+                snprintf(weather_code_build->icon_96, sizeof(weather_code_build->icon_96), "%s", ASSET_ICON_RAIN_96);
+                
+                
+            }
+            else if(!is_day)
+            {
+                snprintf(weather_code_build->icon_48, sizeof(weather_code_build->icon_48), "%s", ASSET_ICON_RAIN_48);
+                
+                snprintf(weather_code_build->icon_96, sizeof(weather_code_build->icon_96), "%s", ASSET_ICON_RAIN_96);
+                
+            }
+            break;
+        }
+
+        case WEATHER_RAIN_MODERATE:
+        {
+   
+            snprintf(weather_code_build->label, sizeof(weather_code_build->label), "%s", "Moderate Rain");
+
+            if(is_day)
+            {
+                snprintf(weather_code_build->icon_48, sizeof(weather_code_build->icon_48), "%s", ASSET_ICON_RAIN_48);
+                
+                snprintf(weather_code_build->icon_96, sizeof(weather_code_build->icon_96), "%s", ASSET_ICON_RAIN_96);
+                
+                
+            }
+            else if(!is_day)
+            {
+                snprintf(weather_code_build->icon_48, sizeof(weather_code_build->icon_48), "%s", ASSET_ICON_RAIN_48);
+                
+                snprintf(weather_code_build->icon_96, sizeof(weather_code_build->icon_96), "%s", ASSET_ICON_RAIN_96);
+                
+            }
+            break;
+        }
+
+        case WEATHER_RAIN_HEAVY:
+        {
+   
+            snprintf(weather_code_build->label, sizeof(weather_code_build->label), "%s", "Heavy Rain");
+
+            if(is_day)
+            {
+                snprintf(weather_code_build->icon_48, sizeof(weather_code_build->icon_48), "%s", ASSET_ICON_RAIN_48);
+                
+                snprintf(weather_code_build->icon_96, sizeof(weather_code_build->icon_96), "%s", ASSET_ICON_RAIN_96);
+                
+                
+            }
+            else if(!is_day)
+            {
+                snprintf(weather_code_build->icon_48, sizeof(weather_code_build->icon_48), "%s", ASSET_ICON_RAIN_48);
+                
+                snprintf(weather_code_build->icon_96, sizeof(weather_code_build->icon_96), "%s", ASSET_ICON_RAIN_96);
+                
+            }
+            break;
+        }
+
+        case WEATHER_SNOW_LIGHT:
+        {
+   
+            snprintf(weather_code_build->label, sizeof(weather_code_build->label), "%s", "Light Snow");
+
+            if(is_day)
+            {
+                snprintf(weather_code_build->icon_48, sizeof(weather_code_build->icon_48), "%s", ASSET_ICON_SNOW_48);
+                
+                snprintf(weather_code_build->icon_96, sizeof(weather_code_build->icon_96), "%s", ASSET_ICON_SNOW_96);
+                
+                
+            }
+            else if(!is_day)
+            {
+                snprintf(weather_code_build->icon_48, sizeof(weather_code_build->icon_48), "%s", ASSET_ICON_SNOW_48);
+                
+                snprintf(weather_code_build->icon_96, sizeof(weather_code_build->icon_96), "%s", ASSET_ICON_SNOW_96);
+                
+            }
+            break;
+        }
+
+        case WEATHER_SNOW_MODERATE:
+        {
+   
+            snprintf(weather_code_build->label, sizeof(weather_code_build->label), "%s", "Moderate Snow");
+
+            if(is_day)
+            {
+                snprintf(weather_code_build->icon_48, sizeof(weather_code_build->icon_48), "%s", ASSET_ICON_SNOW_48);
+                
+                snprintf(weather_code_build->icon_96, sizeof(weather_code_build->icon_96), "%s", ASSET_ICON_SNOW_96);
+                
+                
+            }
+            else if(!is_day)
+            {
+                snprintf(weather_code_build->icon_48, sizeof(weather_code_build->icon_48), "%s", ASSET_ICON_SNOW_48);
+                
+                snprintf(weather_code_build->icon_96, sizeof(weather_code_build->icon_96), "%s", ASSET_ICON_SNOW_96);
+                
+            }
+            break;
+        }
+
+        case WEATHER_SNOW_HEAVY:
+        {
+   
+            snprintf(weather_code_build->label, sizeof(weather_code_build->label), "%s", "Heavy Snow");
+
+            if(is_day)
+            {
+                snprintf(weather_code_build->icon_48, sizeof(weather_code_build->icon_48), "%s", ASSET_ICON_SNOW_48);
+                
+                snprintf(weather_code_build->icon_96, sizeof(weather_code_build->icon_96), "%s", ASSET_ICON_SNOW_96);
+                
+                
+            }
+            else if(!is_day)
+            {
+                snprintf(weather_code_build->icon_48, sizeof(weather_code_build->icon_48), "%s", ASSET_ICON_SNOW_48);
+                
+                snprintf(weather_code_build->icon_96, sizeof(weather_code_build->icon_96), "%s", ASSET_ICON_SNOW_96);
+                
+            }
+            break;
+        }
+
+        case WEATHER_RAIN_SHOWERS_LIGHT:
+        {
+   
+            snprintf(weather_code_build->label, sizeof(weather_code_build->label), "%s", "Light Rain Showers");
+
+            if(is_day)
+            {
+                snprintf(weather_code_build->icon_48, sizeof(weather_code_build->icon_48), "%s", ASSET_ICON_RAIN_48);
+                
+                snprintf(weather_code_build->icon_96, sizeof(weather_code_build->icon_96), "%s", ASSET_ICON_RAIN_96);
+                
+                
+            }
+            else if(!is_day)
+            {
+                snprintf(weather_code_build->icon_48, sizeof(weather_code_build->icon_48), "%s", ASSET_ICON_RAIN_48);
+                
+                snprintf(weather_code_build->icon_96, sizeof(weather_code_build->icon_96), "%s", ASSET_ICON_RAIN_96);
+                
+            }
+            break;
+        }
+
+        case WEATHER_RAIN_SHOWERS_MODERATE:
+        {
+   
+            snprintf(weather_code_build->label, sizeof(weather_code_build->label), "%s", "Moderate Rain Showers");
+
+            if(is_day)
+            {
+                snprintf(weather_code_build->icon_48, sizeof(weather_code_build->icon_48), "%s", ASSET_ICON_RAIN_48);
+                
+                snprintf(weather_code_build->icon_96, sizeof(weather_code_build->icon_96), "%s", ASSET_ICON_RAIN_96);
+                
+                
+            }
+            else if(!is_day)
+            {
+                snprintf(weather_code_build->icon_48, sizeof(weather_code_build->icon_48), "%s", ASSET_ICON_RAIN_48);
+                
+                snprintf(weather_code_build->icon_96, sizeof(weather_code_build->icon_96), "%s", ASSET_ICON_RAIN_96);
+                
+            }
+            break;
+        }
+
+        case WEATHER_RAIN_SHOWERS_VIOLENT:
+        {
+   
+            snprintf(weather_code_build->label, sizeof(weather_code_build->label), "%s", "Violent Rain Showers");
+
+            if(is_day)
+            {
+                snprintf(weather_code_build->icon_48, sizeof(weather_code_build->icon_48), "%s", ASSET_ICON_RAIN_48);
+                
+                snprintf(weather_code_build->icon_96, sizeof(weather_code_build->icon_96), "%s", ASSET_ICON_RAIN_96);
+                
+                
+            }
+            else if(!is_day)
+            {
+                snprintf(weather_code_build->icon_48, sizeof(weather_code_build->icon_48), "%s", ASSET_ICON_RAIN_48);
+                
+                snprintf(weather_code_build->icon_96, sizeof(weather_code_build->icon_96), "%s", ASSET_ICON_RAIN_96);
+                
+            }
+            break;
+        }
+
+        case WEATHER_THUNDERSTORM:
+        {
+   
+            snprintf(weather_code_build->label, sizeof(weather_code_build->label), "%s", "Thunderstorms");
+
+            if(is_day)
+            {
+                snprintf(weather_code_build->icon_48, sizeof(weather_code_build->icon_48), "%s", ASSET_ICON_THUNDERSTORMS_DAY_48);
+                
+                snprintf(weather_code_build->icon_96, sizeof(weather_code_build->icon_96), "%s", ASSET_ICON_THUNDERSTORMS_DAY_96);
+                
+                
+            }
+            else if(!is_day)
+            {
+                snprintf(weather_code_build->icon_48, sizeof(weather_code_build->icon_48), "%s", ASSET_ICON_THUNDERSTORMS_NIGHT_48);
+                
+                snprintf(weather_code_build->icon_96, sizeof(weather_code_build->icon_96), "%s", ASSET_ICON_THUNDERSTORMS_NIGHT_96);
+                
+            }
+            break;
+        }
+
+        case WEATHER_THUNDERSTORM_HAIL_LIGHT:
+        {
+   
+            snprintf(weather_code_build->label, sizeof(weather_code_build->label), "%s", "Thunderstorms w/ Light Hail");
+
+            if(is_day)
+            {
+                snprintf(weather_code_build->icon_48, sizeof(weather_code_build->icon_48), "%s", ASSET_ICON_THUNDERSTORMS_DAY_48);
+                
+                snprintf(weather_code_build->icon_96, sizeof(weather_code_build->icon_96), "%s", ASSET_ICON_THUNDERSTORMS_DAY_96);
+                
+                
+            }
+            else if(!is_day)
+            {
+                snprintf(weather_code_build->icon_48, sizeof(weather_code_build->icon_48), "%s", ASSET_ICON_THUNDERSTORMS_NIGHT_48);
+                
+                snprintf(weather_code_build->icon_96, sizeof(weather_code_build->icon_96), "%s", ASSET_ICON_THUNDERSTORMS_NIGHT_96);
+                
+            }
+            break;
+        }
+
+        case WEATHER_THUNDERSTORM_HAIL_HEAVY:
+        {
+   
+            snprintf(weather_code_build->label, sizeof(weather_code_build->label), "%s", "Thunderstorms w/ Heavy Hail");
+
+            if(is_day)
+            {
+                snprintf(weather_code_build->icon_48, sizeof(weather_code_build->icon_48), "%s", ASSET_ICON_THUNDERSTORMS_EXTREME_DAY_48);
+                
+                snprintf(weather_code_build->icon_96, sizeof(weather_code_build->icon_96), "%s", ASSET_ICON_THUNDERSTORMS_EXTREME_DAY_96);
+                
+                
+            }
+            else if(!is_day)
+            {
+                snprintf(weather_code_build->icon_48, sizeof(weather_code_build->icon_48), "%s", ASSET_ICON_THUNDERSTORMS_EXTREME_NIGHT_48);
+                
+                snprintf(weather_code_build->icon_96, sizeof(weather_code_build->icon_96), "%s", ASSET_ICON_THUNDERSTORMS_EXTREME_NIGHT_96);
+                
+            }
+            break;
+        }
+
+    }
+}
 
 
 void parse_weather_data(char* buffer, size_t size, weather_data_t *data)
@@ -72,6 +534,27 @@ void parse_weather_data(char* buffer, size_t size, weather_data_t *data)
         if(cJSON_IsBool(is_day))
         { 
             data->current.is_day = (bool)is_day->valueint;
+        }
+
+        cJSON* feels_like = cJSON_GetObjectItemCaseSensitive(current, "apparent_temperature");
+        if(cJSON_IsNumber(feels_like))
+        {
+            data->current.feels_like = (float)feels_like->valuedouble;
+        }
+        cJSON* humidity = cJSON_GetObjectItemCaseSensitive(current, "relative_humidity_2m");
+        if(cJSON_IsNumber(humidity))
+        {
+            data->current.humidity = (uint8_t)humidity->valueint;
+        }
+
+        cJSON* weather_code = cJSON_GetObjectItemCaseSensitive(current, "weather_code");
+        if(cJSON_IsNumber(weather_code))
+        {
+            data->current.weather_code = (uint8_t)weather_code->valueint;
+            interpret_weather_code(
+                data->current.weather_code,
+                &data->current.weather_code_build, 
+                data->current.is_day);
         }
     }
 
@@ -191,6 +674,11 @@ void parse_weather_data(char* buffer, size_t size, weather_data_t *data)
                 {
                     data->hourly.weather_code[i] = (uint8_t)value->valueint;
                 }
+                
+            interpret_weather_code(
+                data->hourly.weather_code[i],
+                &data->hourly.weather_code_build[i], 
+                data->hourly.is_day[i]);
             }
         }
 
@@ -294,6 +782,10 @@ void parse_weather_data(char* buffer, size_t size, weather_data_t *data)
                 {
                     data->daily.weather_code[i] = (uint8_t)value->valueint;
                 }
+            interpret_weather_code(
+                data->daily.weather_code[i],
+                &data->daily.weather_code_build[i], 
+                true);
             }
         }
 
@@ -373,7 +865,11 @@ void weather_manager_init()
         .method = HTTP_METHOD_GET, 
         .crt_bundle_attach = esp_crt_bundle_attach, 
         .timeout_ms = 10000, 
-        .event_handler = http_event_handler
+        .event_handler = http_event_handler,
+
+        .buffer_size = 4096,
+        .buffer_size_tx = 2048,
+        .max_authorization_retries = 1,
     };
 
     handle = esp_http_client_init(&config);

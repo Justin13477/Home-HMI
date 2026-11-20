@@ -1,4 +1,5 @@
 #include "ui_build.h"
+#include "assets-src.h"
 
 app_data_t *ui_build_snapshot;
 
@@ -53,16 +54,27 @@ lv_obj_t* build_nav_sidebar(lv_obj_t* parent)
     return sidebar;
 }
 
-lv_obj_t* build_nav_button_base(lv_obj_t* parent, const char* icon, const char* text, lv_event_cb_t cb)
+lv_obj_t* build_nav_button_base(lv_obj_t* parent, const char* icon, const char* text, lv_event_cb_t cb, bool is_img)
 {
     lv_obj_t* button = lv_button_create(parent);
     apply_nav_button_style(button);
     lv_obj_set_style_size(button, lv_pct(100), lv_pct(19), LV_STATE_DEFAULT);
     lv_obj_add_event_cb(button, cb, LV_EVENT_CLICKED, NULL);
-
-        lv_obj_t* icon_label = lv_label_create(button);
-        apply_nav_button_icon_label_style(icon_label);
-        lv_label_set_text(icon_label, icon);
+    lv_obj_set_flex_flow(button, LV_FLEX_FLOW_COLUMN);
+    lv_obj_set_flex_align(button, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
+        
+        if(!is_img)
+            {
+                lv_obj_t* icon_label = lv_label_create(button);
+            apply_nav_button_icon_label_style(icon_label);
+                lv_label_set_text(icon_label, icon);
+            }
+        else if(is_img)
+        {
+            lv_obj_t* icon_img = lv_img_create(button);
+            lv_img_set_src(icon_img, icon);
+            lv_obj_set_size(icon_img, 96, 60);
+        }
         
 
         lv_obj_t* text_label = lv_label_create(button);
@@ -73,21 +85,21 @@ lv_obj_t* build_nav_button_base(lv_obj_t* parent, const char* icon, const char* 
 
 lv_obj_t* build_nav_button_home(lv_obj_t* parent)
 {
-    return build_nav_button_base(parent, LV_SYMBOL_HOME, "Home", set_page_home);
+    return build_nav_button_base(parent, LV_SYMBOL_HOME, "Home", set_page_home, false);
 }
 
 lv_obj_t* build_nav_button_settings(lv_obj_t* parent)
 {
-    return build_nav_button_base(parent, LV_SYMBOL_SETTINGS, "Settings", set_page_settings);
+    return build_nav_button_base(parent, LV_SYMBOL_SETTINGS, "Settings", set_page_settings, false);
 }
 lv_obj_t* build_nav_button_lighting(lv_obj_t* parent)
 {
-    return build_nav_button_base(parent, LV_SYMBOL_POWER, "Lighting", set_page_lighting);
+    return build_nav_button_base(parent, LV_SYMBOL_POWER, "Lighting", set_page_lighting, false);
 }
 
 lv_obj_t* build_nav_button_climate(lv_obj_t* parent)
 {
-    return build_nav_button_base(parent, LV_SYMBOL_BELL, "Climate", set_page_climate);
+    return build_nav_button_base(parent, ASSET_ICON_THERMOMETER_96, "Climate", set_page_climate, true);
 }
 
 
@@ -196,7 +208,7 @@ lv_obj_t* build_header_ribbon_timestamp(lv_obj_t* parent)
 
 lv_obj_t* build_flashcard_base(lv_obj_t* parent, const char* icon, const char* label, obj_func_t content_func, lv_event_cb_t cb)                           
 {
-    lv_obj_t* flashcard = lv_obj_create(parent);
+    lv_obj_t* flashcard = lv_image_create(parent);
     lv_obj_set_size(flashcard, lv_pct(49), lv_pct(48));
     apply_flashcard_style(flashcard);
     lv_obj_set_flex_flow(flashcard, LV_FLEX_FLOW_COLUMN);
@@ -513,6 +525,8 @@ lv_obj_t* build_climate_data_thermastat(lv_obj_t* parent)
     lv_obj_set_flex_align(thermastat, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
     lv_obj_set_style_border_opa(thermastat, 0, 0);
 
+        
+
         lv_obj_t* thermastat_arc = lv_arc_create(thermastat);
         lv_obj_set_flex_flow(thermastat_arc, LV_FLEX_FLOW_ROW);
         lv_obj_set_flex_align(thermastat_arc, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_SPACE_BETWEEN);
@@ -603,3 +617,149 @@ lv_obj_t* build_climate_contents(lv_obj_t* parent)
 
 
 }
+
+lv_obj_t* build_weather_flashcard(lv_obj_t* parent)
+{
+    weather_data_t *data = ui_build_snapshot->weather_data;
+
+    char temp[32];
+    snprintf(temp, sizeof(temp), "%d°F",
+             (int)data->current.temperature);
+
+    char feels_like[32];
+    snprintf(feels_like, sizeof(feels_like), "Feels Like: %d°F",
+             (int)data->current.feels_like);
+
+    char humidity[32];
+    snprintf(humidity, sizeof(humidity), "Humidity: %d%%",
+             (int)data->current.humidity);
+
+    lv_obj_t* flashcard_bg = lv_image_create(parent);
+    lv_image_set_src(flashcard_bg, ASSET_BG_BLUE_FLASHCARD);
+
+    lv_obj_set_size(flashcard_bg, lv_pct(49), lv_pct(48));
+    lv_obj_add_flag(flashcard_bg, LV_OBJ_FLAG_CLICKABLE);
+    lv_obj_add_event_cb(flashcard_bg, set_page_weather, LV_EVENT_CLICKED, NULL);
+
+    lv_obj_set_flex_flow(flashcard_bg, LV_FLEX_FLOW_ROW);
+    lv_obj_set_flex_align(
+        flashcard_bg,
+        LV_FLEX_ALIGN_SPACE_EVENLY,
+        LV_FLEX_ALIGN_CENTER,
+        LV_FLEX_ALIGN_CENTER
+    );
+
+    // LEFT SIDE
+    lv_obj_t* left = lv_obj_create(flashcard_bg);
+    apply_main_style(left);
+
+    lv_obj_set_size(left, lv_pct(46), lv_pct(90));
+    lv_obj_set_style_border_opa(left, 0, 0);
+    lv_obj_set_style_bg_opa(left, 0, 0);
+    lv_obj_set_style_pad_all(left, 0, 0);
+
+    lv_obj_set_flex_flow(left, LV_FLEX_FLOW_COLUMN);
+    lv_obj_set_flex_align(
+        left,
+        LV_FLEX_ALIGN_CENTER,
+        LV_FLEX_ALIGN_CENTER,
+        LV_FLEX_ALIGN_CENTER
+    );
+
+    lv_obj_t* temp_label = lv_label_create(left);
+    apply_header_big_label_style(temp_label);
+    lv_label_set_text(temp_label, temp);
+
+    lv_obj_t* additional_info = lv_obj_create(left);
+    apply_main_style(additional_info);
+
+    lv_obj_set_size(additional_info, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+    lv_obj_set_style_border_opa(additional_info, 0, 0);
+    lv_obj_set_style_bg_opa(additional_info, 0, 0);
+    lv_obj_set_style_pad_all(additional_info, 0, 0);
+
+    lv_obj_set_flex_flow(additional_info, LV_FLEX_FLOW_COLUMN);
+    lv_obj_set_flex_align(
+        additional_info,
+        LV_FLEX_ALIGN_CENTER,
+        LV_FLEX_ALIGN_START,
+        LV_FLEX_ALIGN_CENTER
+    );
+
+    lv_obj_t* feels_like_label = lv_label_create(additional_info);
+    apply_header_sm_label_style(feels_like_label);
+    lv_label_set_text(feels_like_label, feels_like);
+
+    lv_obj_t* humidity_label = lv_label_create(additional_info);
+    apply_header_sm_label_style(humidity_label);
+    lv_label_set_text(humidity_label, humidity);
+
+
+    // RIGHT SIDE
+    lv_obj_t* right = lv_obj_create(flashcard_bg);
+    apply_main_style(right);
+
+    lv_obj_set_size(right, lv_pct(46), lv_pct(90));
+    lv_obj_set_style_border_opa(right, 0, 0);
+    lv_obj_set_style_bg_opa(right, 0, 0);
+    lv_obj_set_style_pad_all(right, 0, 0);
+
+    lv_obj_set_flex_flow(right, LV_FLEX_FLOW_COLUMN);
+    lv_obj_set_flex_align(
+        right,
+        LV_FLEX_ALIGN_CENTER,
+        LV_FLEX_ALIGN_CENTER,
+        LV_FLEX_ALIGN_CENTER
+    );
+
+    lv_obj_t* icon = lv_image_create(right);
+    lv_image_set_src(icon, data->current.weather_code_build.icon_96);
+    lv_obj_set_size(icon, 96, 96);
+    lv_obj_set_style_translate_x(icon, -15, LV_PART_MAIN); // Move left 15px
+    lv_obj_set_style_translate_y(icon, -12, LV_PART_MAIN); // Move up 12px
+
+    lv_obj_t* code = lv_label_create(right);
+    apply_header_sm_label_style(code);
+    lv_label_set_text(code, data->current.weather_code_build.label);
+    lv_obj_set_style_translate_x(code, -15, LV_PART_MAIN); // Move left 15px
+    lv_obj_set_style_translate_y(code, -12, LV_PART_MAIN); // Move up 12px
+
+    return flashcard_bg;
+}
+lv_obj_t* build_climate_toggle(lv_obj_t* parent) 
+{
+    lv_obj_t *toggle = lv_obj_create(parent);
+        lv_obj_set_size(toggle, 180, 55);
+        apply_main_style(toggle);
+        lv_obj_set_style_border_opa(toggle, 0, 0);
+        lv_obj_remove_style(toggle, NULL, LV_PART_SCROLLBAR);
+        lv_obj_add_flag(toggle, LV_OBJ_FLAG_CLICKABLE);
+        lv_obj_remove_flag(toggle, LV_OBJ_FLAG_SCROLLABLE);
+
+        lv_obj_set_flex_flow(toggle, LV_FLEX_FLOW_ROW);
+        lv_obj_set_flex_align(toggle,
+                            LV_FLEX_ALIGN_SPACE_EVENLY,
+                            LV_FLEX_ALIGN_CENTER,
+                            LV_FLEX_ALIGN_CENTER);
+
+        lv_obj_add_flag(toggle, LV_OBJ_FLAG_IGNORE_LAYOUT);
+
+        lv_obj_t *option_1 = lv_button_create(toggle);
+        lv_obj_set_size(option_1, lv_pct(50), lv_pct(100));
+        apply_nav_button_style(option_1);
+
+        lv_obj_t *label_1 = lv_label_create(option_1);
+        lv_label_set_text(label_1, "Climate");
+        lv_obj_center(label_1);
+        apply_header_sm_label_style(label_1);
+
+        lv_obj_t *option_2 = lv_button_create(toggle);
+        lv_obj_set_size(option_2, lv_pct(50), lv_pct(100));
+        apply_nav_button_style(option_2);
+
+        lv_obj_t *label_2 = lv_label_create(option_2);
+        lv_label_set_text(label_2, "Forecast");
+        lv_obj_center(label_2);
+        apply_header_sm_label_style(label_2);
+    return toggle;
+    }

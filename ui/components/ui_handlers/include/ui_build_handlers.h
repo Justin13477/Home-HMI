@@ -6,6 +6,7 @@
 #include "datatypes.h"
 
 extern lv_obj_t* keyboard;
+extern subpage_state_t subpage_climate;
 
 lv_obj_t* ui_build_get_keyboard();
 

@@ -16,12 +16,25 @@
 #define WEATHER_HOURLY_COUNT 24
 #define WEATHER_DAILY_COUNT 7
 
+typedef struct 
+{
+    char label[32];
+    char icon_48[128];
+    char icon_96[128];
+
+} weather_code_build_t;
+
 typedef struct
 {
     float temperature;
     bool is_day;
-} weather_current_t;
 
+    float feels_like;
+    uint8_t humidity;
+    uint8_t weather_code;
+    weather_code_build_t weather_code_build;
+
+} weather_current_t;
 
 typedef struct
 {
@@ -41,6 +54,8 @@ typedef struct
 
     // Weather conditions
     uint8_t weather_code[WEATHER_HOURLY_COUNT];
+    weather_code_build_t weather_code_build[WEATHER_HOURLY_COUNT];
+    
     bool is_day[WEATHER_HOURLY_COUNT];
 
     // Precipitation
@@ -58,6 +73,7 @@ typedef struct
 {
     char date[WEATHER_DAILY_COUNT][11];
     uint8_t weather_code[WEATHER_DAILY_COUNT];
+    weather_code_build_t weather_code_build[WEATHER_DAILY_COUNT];
 
     float daylight_duration[WEATHER_DAILY_COUNT];
 
@@ -151,9 +167,19 @@ typedef enum {
     PAGE_LIGHTING
 } page_state_t;
 
+typedef enum {
+    SUBPAGE_CLIMATE, 
+    SUBPAGE_WEATHER,
+} subpage_state_t;
+
 typedef void (*ui_page_switcher_cb_t)(page_state_t state);
 
-
+typedef enum
+{
+    SIZE_32,
+    SIZE_48,
+    SIZE_96,
+} icon_size_t;
 typedef enum
 {
     WEATHER_CLEAR = 0,

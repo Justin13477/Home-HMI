@@ -5,6 +5,7 @@ idf_component_register(
         components
         freertos
         log
+        espressif__esp_lvgl_port
         lvgl__lvgl
         network
         data

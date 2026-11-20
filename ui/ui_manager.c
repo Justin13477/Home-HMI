@@ -1,4 +1,5 @@
 #include "ui_manager.h"
+#include "esp_lvgl_port.h"
 
 lv_obj_t* active_page = NULL;
 lv_obj_t* old_page = NULL;
@@ -8,6 +9,11 @@ static const char *TAG = "UI_MANAGER";
 void load_new_page()
 {
     ui_build_snapshot = get_data_snapshot();
+    if (!lvgl_port_lock(0)) {
+        ESP_LOGE(TAG, "Failed to lock LVGL for page update");
+        return;
+    }
+
     if (current_page_state != next_page_state) {
         current_page_state = next_page_state;
         lv_obj_delete(ui_build_get_keyboard());
@@ -74,6 +80,8 @@ void load_new_page()
         }
         lv_display_trigger_activity(NULL);
     }
+
+    lvgl_port_unlock();
 }
 
 
@@ -88,8 +96,16 @@ void run_task(void *arg)
     ESP_LOGI(TAG, "System initialized successfully");
 
     ui_build_snapshot = get_data_snapshot();
+    if (!lvgl_port_lock(0)) {
+        ESP_LOGE(TAG, "Failed to lock LVGL during initial page creation");
+        vTaskDelete(NULL);
+        return;
+    }
+
     active_page = build_page(main_page, build_main_page);
     lv_screen_load(active_page);
+    lvgl_port_unlock();
+
     while (1) {
         
         load_new_page();
@@ -105,10 +121,15 @@ void refresh_task(void *arg)
 {
     while(1)
     {
-        old_page = active_page;
-        active_page = build_page(main_page, build_main_page);
-        lv_screen_load(active_page);
-        lv_obj_delete(old_page);
+        if (!lvgl_port_lock(0)) {
+            ESP_LOGE(TAG, "Failed to lock LVGL for page refresh");
+        } else {
+            old_page = active_page;
+            active_page = build_page(main_page, build_main_page);
+            lv_screen_load(active_page);
+            lv_obj_delete(old_page);
+            lvgl_port_unlock();
+        }
 
         vTaskDelay(pdMS_TO_TICKS(10000));
     }

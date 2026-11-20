@@ -4,6 +4,7 @@ lv_obj_t* main_page;
 lv_obj_t* settings_page;
 lv_obj_t* climate_page;
 lv_obj_t* lighting_page;
+subpage_state_t climate_subpage;
 
 lv_obj_t* build_page(lv_obj_t* page, page_builder builder)
 {
@@ -61,6 +62,10 @@ lv_obj_t* build_main_page()
 
                 lv_obj_t* climate_flashcard = build_flashcard_climate(flashcard_area);
                 lv_obj_t* lighting_flashcard = build_flashcard_lighting(flashcard_area);
+                lv_obj_t* weather_flashcard = build_weather_flashcard(flashcard_area);
+                
+
+
                 
 
     return main_page;
@@ -83,6 +88,18 @@ lv_obj_t* build_lighting_page()
     lv_obj_t *contents = build_persistent_ui(lighting_page);
 
         lv_obj_t* header_ribbon_h = build_header_ribbon(contents, build_header_ribbon_page_lighting);
+
+        lv_obj_t* background = lv_obj_create(contents);
+        lv_obj_set_size(background, lv_pct(100), lv_pct(35));
+
+        lv_obj_t* background2 = lv_obj_create(contents);
+        lv_obj_set_size(background2, lv_pct(100), lv_pct(20));
+        apply_main_style(background2);
+
+        lv_obj_t* background3 = lv_obj_create(contents);
+        lv_obj_set_size(background3, lv_pct(100), lv_pct(20));
+
+    
     return lighting_page;
 }
 lv_obj_t* build_climate_page()
@@ -92,7 +109,18 @@ lv_obj_t* build_climate_page()
 
         lv_obj_t* header_ribbon_h = build_header_ribbon(contents, build_header_ribbon_page_climate);
 
-        lv_obj_t* climate = build_climate_contents(contents);
+        
+        //lv_obj_move_foreground(page_toggle);
+
+        if(subpage_climate == SUBPAGE_CLIMATE)
+            {
+                lv_obj_t* climate = build_climate_contents(contents);
+            }
+            
+
+        lv_obj_t* page_toggle = build_climate_toggle(contents);
+        lv_obj_set_x(page_toggle, lv_pct(40));
+        lv_obj_set_y(page_toggle, lv_pct(25));
         
     return climate_page;
 }

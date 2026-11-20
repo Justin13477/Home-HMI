@@ -15,5 +15,6 @@ void set_page_home(lv_event_t *e);
 void set_page_settings(lv_event_t *e);
 void set_page_climate(lv_event_t *e);
 void set_page_lighting(lv_event_t *e);
+void set_page_weather(lv_event_t *e);
 
 #endif

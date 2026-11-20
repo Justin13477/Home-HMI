@@ -104,6 +104,8 @@ void system_init(void)
     }
     ESP_LOGI(INIT_TAG, "Touch panel init success");
 
+    
+
     /* LCD + LVGL must be ready before the backlight is turned on. */
     err = display_init();
     if (err != ESP_OK) {
@@ -130,8 +132,6 @@ void system_init(void)
     /* Queues, mutexes and handlers must exist before network producers start. */
     init_queues();
     init_data();
-
-    init_storage();
 
     wifi_init_sta();
     

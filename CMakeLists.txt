@@ -14,7 +14,7 @@ set(EXTRA_COMPONENT_DIRS
     "${CMAKE_CURRENT_LIST_DIR}/data"
     "${CMAKE_CURRENT_LIST_DIR}/data/data_handlers"
     "${CMAKE_CURRENT_LIST_DIR}/weather"
-    "${CMAKE_CURRENT_LIST_DIR}/storage"
+    "${CMAKE_CURRENT_LIST_DIR}/assets/assets-src"
 )
 
 include("$ENV{IDF_PATH}/tools/cmake/project.cmake")
