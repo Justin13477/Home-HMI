@@ -2,7 +2,8 @@
 
 page_state_t current_page_state = PAGE_MAIN;
 page_state_t next_page_state = PAGE_MAIN;
-subpage_state_t subpage_climate = SUBPAGE_CLIMATE;
+subpage_state_t current_subpage_climate = SUBPAGE_CLIMATE;
+subpage_state_t next_subpage_climate = SUBPAGE_CLIMATE;
 
 void page_switcher_set_page_state(page_state_t next)
 {
@@ -25,14 +26,14 @@ void set_page_settings(lv_event_t *e)
 void set_page_climate(lv_event_t *e)
 {
     (void)e;
-    subpage_climate = SUBPAGE_CLIMATE;
+    next_subpage_climate = SUBPAGE_CLIMATE;
     page_switcher_set_page_state(PAGE_CLIMATE);
     ESP_LOGI("STATE_DATA_MANAGER", "Switching to Climate page");
 }
 void set_page_weather(lv_event_t *e)
 {
     (void)e;
-    subpage_climate = SUBPAGE_WEATHER;
+    next_subpage_climate = SUBPAGE_WEATHER;
     page_switcher_set_page_state(PAGE_CLIMATE);
     ESP_LOGI("STATE_DATA_MANAGER", "Switching to Weather page");
 }

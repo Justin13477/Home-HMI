@@ -1,25 +1,9 @@
+file(GLOB ASSET_SOURCES
+    "${CMAKE_CURRENT_LIST_DIR}/*.c"
+)
+
 idf_component_register(
-    SRCS
-        "clear-day.c"
-        "clear-night.c"
-        "cloudy.c"
-        "fog.c"
-        "overcast.c"
-        "overcast-day.c"
-        "overcast-night.c"
-        "partly-cloudy-day.c"
-        "partly-cloudy-night.c"
-        "rain.c"
-        "snow.c"
-        "thermometer.c"
-        "thunderstorms-day.c"
-        "thunderstorms.c"
-        "thunderstorms-night.c"
-        "thunderstorms-extreme.c"
-        "thunderstorms-extreme-night.c"
-        "thunderstorms-extreme-day.c"
-        "wind.c"
-        "wind-alert.c"
+    SRCS ${ASSET_SOURCES}
     INCLUDE_DIRS "${CMAKE_CURRENT_LIST_DIR}/include"
     REQUIRES lvgl__lvgl
 )

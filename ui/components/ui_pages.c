@@ -112,7 +112,7 @@ lv_obj_t* build_climate_page()
         
         //lv_obj_move_foreground(page_toggle);
 
-        if(subpage_climate == SUBPAGE_CLIMATE)
+        if(current_subpage_climate == SUBPAGE_CLIMATE)
             {
                 lv_obj_t* climate = build_climate_contents(contents);
             }

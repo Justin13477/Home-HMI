@@ -8,6 +8,7 @@
 #include "freertos/task.h"
 #include "freertos/queue.h"
 #include "assets.h"
+#include "assets-src.h"
 
 
 extern QueueHandle_t weather_queue;

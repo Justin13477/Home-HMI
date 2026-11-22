@@ -9,6 +9,9 @@
 extern page_state_t current_page_state;
 extern page_state_t next_page_state;
 
+extern subpage_state_t current_subpage_climate;
+extern subpage_state_t next_subpage_climate;
+
 void page_switcher_set_page_state(page_state_t next);
 
 void set_page_home(lv_event_t *e);

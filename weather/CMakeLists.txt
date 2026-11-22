@@ -8,4 +8,5 @@ idf_component_register(
     log
     util
     freertos
+    assets-src
 )

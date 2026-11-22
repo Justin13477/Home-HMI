@@ -7,6 +7,7 @@
 #include "ui_build_handlers.h"
 #include "ui_styles.h"
 #include "ui_page_switcher.h"
+#include "assets-src.h"
 
 
 /*
@@ -38,7 +39,7 @@ lv_obj_t* create_keyboard(lv_obj_t* parent);
 lv_obj_t* get_keyboard();
 
 lv_obj_t* build_nav_sidebar(lv_obj_t *parent); // take a struct pointer to update state changes via cb
-lv_obj_t* build_nav_button_base(lv_obj_t* parent, const char* icon, const char* text, lv_event_cb_t cb, bool is_img);
+lv_obj_t* build_nav_button_base(lv_obj_t* parent, const char* base_icon, const lv_image_dsc_t *custom_icon, const char* text, lv_event_cb_t cb);
 lv_obj_t* build_nav_button_home(lv_obj_t* parent);
 lv_obj_t* build_nav_button_settings(lv_obj_t* parent);
 lv_obj_t* build_nav_button_lighting(lv_obj_t* parent);
@@ -48,7 +49,7 @@ lv_obj_t* build_nav_button_climate(lv_obj_t* parent);
 
 lv_obj_t* build_header_ribbon(lv_obj_t* parent, obj_func_t page_contents_func); // take a state variable
 lv_obj_t* build_header_ribbon_contents(lv_obj_t* parent, lv_obj_t* page_contents); // take a state variable 
-lv_obj_t* build_header_ribbon_page_base(lv_obj_t* parent, const char* icon, const char* label, const char* dsc);
+lv_obj_t* build_header_ribbon_page_base(lv_obj_t* parent, const char* base_icon, const lv_image_dsc_t *custom_icon, const char* label, const char* dsc);
 lv_obj_t* build_header_ribbon_page_home(lv_obj_t* parent);
 lv_obj_t* build_header_ribbon_page_settings(lv_obj_t* parent);
 lv_obj_t* build_header_ribbon_page_climate(lv_obj_t* parent);
@@ -80,5 +81,6 @@ lv_obj_t* build_climate_data_thermastat(lv_obj_t* parent);
 lv_obj_t* build_weather_flashcard(lv_obj_t* parent);
 
 lv_obj_t* build_climate_toggle(lv_obj_t* parent);
+
 #endif
 

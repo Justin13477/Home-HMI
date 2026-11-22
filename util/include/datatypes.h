@@ -5,6 +5,7 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <stdbool.h>
+#include "lvgl.h"
 #define TAG_MAP_CAPACITY 32
 
 #define SENSOR_STATUS_OFFLINE   (1U << 1)
@@ -19,8 +20,8 @@
 typedef struct 
 {
     char label[32];
-    char icon_48[128];
-    char icon_96[128];
+    const lv_image_dsc_t* image_data_48;
+    const lv_image_dsc_t* image_data_128;
 
 } weather_code_build_t;
 

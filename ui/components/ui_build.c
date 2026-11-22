@@ -54,7 +54,7 @@ lv_obj_t* build_nav_sidebar(lv_obj_t* parent)
     return sidebar;
 }
 
-lv_obj_t* build_nav_button_base(lv_obj_t* parent, const char* icon, const char* text, lv_event_cb_t cb, bool is_img)
+lv_obj_t* build_nav_button_base(lv_obj_t* parent, const char* base_icon, const lv_image_dsc_t *custom_icon, const char* text, lv_event_cb_t cb)
 {
     lv_obj_t* button = lv_button_create(parent);
     apply_nav_button_style(button);
@@ -63,16 +63,16 @@ lv_obj_t* build_nav_button_base(lv_obj_t* parent, const char* icon, const char* 
     lv_obj_set_flex_flow(button, LV_FLEX_FLOW_COLUMN);
     lv_obj_set_flex_align(button, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
         
-        if(!is_img)
+        if(custom_icon == NULL)
             {
                 lv_obj_t* icon_label = lv_label_create(button);
-            apply_nav_button_icon_label_style(icon_label);
-                lv_label_set_text(icon_label, icon);
+                apply_nav_button_icon_label_style(icon_label);
+                lv_label_set_text(icon_label, base_icon);
             }
-        else if(is_img)
+        else 
         {
-            lv_obj_t* icon_img = lv_img_create(button);
-            lv_img_set_src(icon_img, icon);
+            lv_obj_t* icon_img = lv_image_create(button);
+            lv_image_set_src(icon_img, custom_icon);
             lv_obj_set_size(icon_img, 96, 60);
         }
         
@@ -85,26 +85,26 @@ lv_obj_t* build_nav_button_base(lv_obj_t* parent, const char* icon, const char* 
 
 lv_obj_t* build_nav_button_home(lv_obj_t* parent)
 {
-    return build_nav_button_base(parent, LV_SYMBOL_HOME, "Home", set_page_home, false);
+    return build_nav_button_base(parent, LV_SYMBOL_HOME, NULL, "Home", set_page_home);
 }
 
 lv_obj_t* build_nav_button_settings(lv_obj_t* parent)
 {
-    return build_nav_button_base(parent, LV_SYMBOL_SETTINGS, "Settings", set_page_settings, false);
+    return build_nav_button_base(parent, LV_SYMBOL_SETTINGS, NULL, "Settings", set_page_settings);
 }
 lv_obj_t* build_nav_button_lighting(lv_obj_t* parent)
 {
-    return build_nav_button_base(parent, LV_SYMBOL_POWER, "Lighting", set_page_lighting, false);
+    return build_nav_button_base(parent, LV_SYMBOL_POWER, NULL, "Lighting", set_page_lighting);
 }
 
 lv_obj_t* build_nav_button_climate(lv_obj_t* parent)
 {
-    return build_nav_button_base(parent, ASSET_ICON_THERMOMETER_96, "Climate", set_page_climate, true);
+    return build_nav_button_base(parent, LV_SYMBOL_POWER, &thermometer_96, "Climate", set_page_climate);
 }
 
 
 
-lv_obj_t* build_header_ribbon_page_base(lv_obj_t* parent, const char* icon, const char* label, const char* dsc)
+lv_obj_t* build_header_ribbon_page_base(lv_obj_t* parent, const char* base_icon, const lv_image_dsc_t *custom_icon, const char* label, const char* dsc)
 {
     lv_obj_t* page_contents = lv_obj_create(parent);
     apply_main_style(page_contents);
@@ -115,14 +115,18 @@ lv_obj_t* build_header_ribbon_page_base(lv_obj_t* parent, const char* icon, cons
                         LV_FLEX_ALIGN_CENTER,
                         LV_FLEX_ALIGN_CENTER);
 
-        lv_obj_t* page_contents_icon_label = lv_label_create(page_contents);
-        lv_label_set_text(page_contents_icon_label, icon); 
-        lv_obj_set_size(page_contents, lv_pct(20), lv_pct(100));
-        lv_obj_center(page_contents_icon_label);
-        
-        
-        apply_nav_button_icon_label_style(page_contents_icon_label);
-        
+    lv_obj_set_size(page_contents, lv_pct(20), lv_pct(100));
+        if(custom_icon == NULL)
+        {
+            lv_obj_t* page_contents_icon_label = lv_label_create(page_contents);
+            lv_label_set_text(page_contents_icon_label, base_icon); 
+            apply_nav_button_icon_label_style(page_contents_icon_label);
+            lv_obj_center(page_contents_icon_label);
+        }
+        else {
+            lv_obj_t* page_contents_icon_img = lv_image_create(page_contents);
+            lv_image_set_src(page_contents_icon_img, custom_icon);
+        }
         
 
         lv_obj_t* page_dsc = lv_obj_create(page_contents);
@@ -146,21 +150,21 @@ lv_obj_t* build_header_ribbon_page_base(lv_obj_t* parent, const char* icon, cons
 }
 lv_obj_t* build_header_ribbon_page_home(lv_obj_t* parent)
 {
-    return build_header_ribbon_page_base(parent, LV_SYMBOL_HOME, "Home", "Overview");
+    return build_header_ribbon_page_base(parent, LV_SYMBOL_HOME, NULL, "Home", "Overview");
 }
 lv_obj_t* build_header_ribbon_page_settings(lv_obj_t* parent)
 {
-    return build_header_ribbon_page_base(parent, LV_SYMBOL_SETTINGS, "Settings", "Mixin Shit Up");
+    return build_header_ribbon_page_base(parent, LV_SYMBOL_SETTINGS, NULL, "Settings", "Mixin Shit Up");
 }
 
 lv_obj_t* build_header_ribbon_page_climate(lv_obj_t* parent)
 {
-    return build_header_ribbon_page_base(parent, LV_SYMBOL_BELL, "Climate", "Air Shenanigans");
+    return build_header_ribbon_page_base(parent, LV_SYMBOL_AUDIO, &thermometer_96, "Climate", "Air Shenanigans");
 }
 
 lv_obj_t* build_header_ribbon_page_lighting(lv_obj_t* parent)
 {
-    return build_header_ribbon_page_base(parent, LV_SYMBOL_POWER, "Lighting", "Disco Mode");
+    return build_header_ribbon_page_base(parent, LV_SYMBOL_POWER, NULL, "Lighting", "Disco Mode");
 }
 
 
@@ -635,9 +639,11 @@ lv_obj_t* build_weather_flashcard(lv_obj_t* parent)
              (int)data->current.humidity);
 
     lv_obj_t* flashcard_bg = lv_image_create(parent);
-    lv_image_set_src(flashcard_bg, ASSET_BG_BLUE_FLASHCARD);
+    lv_image_set_src(flashcard_bg, &gray_bg_400x210);
 
     lv_obj_set_size(flashcard_bg, lv_pct(49), lv_pct(48));
+    lv_obj_update_layout(flashcard_bg);
+
     lv_obj_add_flag(flashcard_bg, LV_OBJ_FLAG_CLICKABLE);
     lv_obj_add_event_cb(flashcard_bg, set_page_weather, LV_EVENT_CLICKED, NULL);
 
@@ -713,7 +719,7 @@ lv_obj_t* build_weather_flashcard(lv_obj_t* parent)
     );
 
     lv_obj_t* icon = lv_image_create(right);
-    lv_image_set_src(icon, data->current.weather_code_build.icon_96);
+    lv_image_set_src(icon, data->current.weather_code_build.image_data_128);
     lv_obj_set_size(icon, 96, 96);
     lv_obj_set_style_translate_x(icon, -15, LV_PART_MAIN); // Move left 15px
     lv_obj_set_style_translate_y(icon, -12, LV_PART_MAIN); // Move up 12px
@@ -747,15 +753,18 @@ lv_obj_t* build_climate_toggle(lv_obj_t* parent)
         lv_obj_t *option_1 = lv_button_create(toggle);
         lv_obj_set_size(option_1, lv_pct(50), lv_pct(100));
         apply_nav_button_style(option_1);
+        lv_obj_add_event_cb(option_1, set_page_climate, LV_EVENT_CLICKED, NULL);
 
         lv_obj_t *label_1 = lv_label_create(option_1);
         lv_label_set_text(label_1, "Climate");
         lv_obj_center(label_1);
         apply_header_sm_label_style(label_1);
+        
 
         lv_obj_t *option_2 = lv_button_create(toggle);
         lv_obj_set_size(option_2, lv_pct(50), lv_pct(100));
         apply_nav_button_style(option_2);
+        lv_obj_add_event_cb(option_2, set_page_weather, LV_EVENT_CLICKED, NULL);
 
         lv_obj_t *label_2 = lv_label_create(option_2);
         lv_label_set_text(label_2, "Forecast");

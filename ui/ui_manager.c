@@ -14,8 +14,9 @@ void load_new_page()
         return;
     }
 
-    if (current_page_state != next_page_state) {
+    if (current_page_state != next_page_state || current_subpage_climate != next_subpage_climate) {
         current_page_state = next_page_state;
+        current_subpage_climate = next_subpage_climate;
         lv_obj_delete(ui_build_get_keyboard());
         switch (current_page_state) {
             case PAGE_MAIN:

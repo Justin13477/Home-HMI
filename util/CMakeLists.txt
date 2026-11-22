@@ -1,4 +1,5 @@
 idf_component_register(
     SRCS "tag_map.c" "time_manager.c"
     INCLUDE_DIRS "${CMAKE_CURRENT_LIST_DIR}/include"
+    REQUIRES lvgl__lvgl
 )
