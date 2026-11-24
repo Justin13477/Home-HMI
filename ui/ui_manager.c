@@ -14,10 +14,16 @@ void load_new_page()
         return;
     }
 
+    bool page_rebuilt = false;
     if (current_page_state != next_page_state || current_subpage_climate != next_subpage_climate) {
         current_page_state = next_page_state;
         current_subpage_climate = next_subpage_climate;
-        lv_obj_delete(ui_build_get_keyboard());
+        old_page = active_page;
+        if(old_page != NULL)
+        {
+            lv_obj_clean(old_page);
+        }
+        keyboard = NULL;
         switch (current_page_state) {
             case PAGE_MAIN:
                 old_page = active_page;
@@ -45,14 +51,19 @@ void load_new_page()
                 break;
         }
         ESP_LOGI(TAG, "Page switched to: %d", current_page_state);
+        page_rebuilt = true;
     }
 
     uint32_t inactive_time = lv_display_get_inactive_time(NULL);
 
-    if(inactive_time > UI_INACTIVITY_TIMEOUT)
+    if(!page_rebuilt && inactive_time > UI_INACTIVITY_TIMEOUT)
     {
-        if(current_page_state != next_page_state)
-            lv_obj_delete(ui_build_get_keyboard());
+        old_page = active_page;
+        if(old_page != NULL)
+        {
+            lv_obj_clean(old_page);
+        }
+        keyboard = NULL;
         switch (current_page_state) {
             case PAGE_MAIN:
                 old_page = active_page;
@@ -126,6 +137,11 @@ void refresh_task(void *arg)
             ESP_LOGE(TAG, "Failed to lock LVGL for page refresh");
         } else {
             old_page = active_page;
+            if(old_page != NULL)
+            {
+                lv_obj_clean(old_page);
+            }
+            keyboard = NULL;
             active_page = build_page(main_page, build_main_page);
             lv_screen_load(active_page);
             lv_obj_delete(old_page);

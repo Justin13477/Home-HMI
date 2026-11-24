@@ -8,8 +8,6 @@
 extern lv_obj_t* keyboard;
 extern subpage_state_t subpage_climate;
 
-lv_obj_t* ui_build_get_keyboard();
-
 void textarea_focused_cb(lv_event_t *e);
 void settings_wifi_ssid_cb(lv_event_t *e);
 void settings_wifi_pass_cb(lv_event_t *e);

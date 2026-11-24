@@ -33,7 +33,7 @@ void update_float_label(lv_obj_t* label, float num);
 
 void init_handlers(ui_page_switcher_cb_t cb);
 
-lv_obj_t* ui_build_create_keyboard(lv_obj_t* parent, lv_obj_t* keyboard);
+lv_obj_t* ui_build_create_keyboard(lv_obj_t* parent);
 
 lv_obj_t* create_keyboard(lv_obj_t* parent);
 lv_obj_t* get_keyboard();
@@ -79,6 +79,8 @@ lv_obj_t* build_climate_data_bar_hum(lv_obj_t* parent);
 lv_obj_t* build_climate_data_thermastat(lv_obj_t* parent);
 
 lv_obj_t* build_weather_flashcard(lv_obj_t* parent);
+lv_obj_t* build_forecast_contents(lv_obj_t* parent);
+lv_obj_t* build_forecast_flashcard(lv_obj_t* parent, weather_data_mode_t mode, uint8_t selector);
 
 lv_obj_t* build_climate_toggle(lv_obj_t* parent);
 

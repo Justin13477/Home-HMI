@@ -119,6 +119,12 @@ The project is developed using:
 ### Home Interface
 ![Home HMI](assets/home-hmi-prototype.jpg)
 
+### Climate Interface
+![Home HMI](assets/home-hmi-climate.jpg)
+
+### Forecaset Interface
+![Home HMI](assets/home-hmi-forecast.jpg)
+
 ### Settings Interface
 ![HMI Settings](assets/home-hmi-settings.jpg)
 

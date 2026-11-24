@@ -1,5 +1,6 @@
 #include "ui_build.h"
 #include "assets-src.h"
+#include <string.h>
 
 app_data_t *ui_build_snapshot;
 
@@ -26,9 +27,9 @@ void update_float_label(lv_obj_t* label, float num)
 
 
 
-lv_obj_t* ui_build_create_keyboard(lv_obj_t* parent, lv_obj_t* keyboard)
+lv_obj_t* ui_build_create_keyboard(lv_obj_t* parent)
 {
-    keyboard = lv_keyboard_create(parent);
+    lv_obj_t* keyboard = lv_keyboard_create(parent);
     lv_obj_set_size(keyboard, lv_pct(80), lv_pct(40));
     //lv_obj_add_flag(keyboard, LV_OBJ_FLAG_IGNORE_LAYOUT);
     apply_main_style(keyboard);
@@ -178,6 +179,8 @@ lv_obj_t* build_header_ribbon(lv_obj_t* parent, obj_func_t page_contents_func)
 
         lv_obj_t* page_contents = page_contents_func(ribbon);
         lv_obj_set_size(page_contents, lv_pct(49), lv_pct(100));
+        lv_obj_remove_style(page_contents, NULL, LV_PART_SCROLLBAR);
+        lv_obj_remove_flag(page_contents, LV_OBJ_FLAG_SCROLLABLE);
 
         lv_obj_t* ribbon_timestamp = build_header_ribbon_timestamp(ribbon);
         lv_obj_set_size(ribbon_timestamp, lv_pct(49), lv_pct(100));
@@ -415,7 +418,7 @@ lv_obj_t* build_settings_network_options(lv_obj_t* parent)
     lv_obj_set_style_border_opa(network_settings, 0, 0);
     //lv_obj_remove_flag(network_settings, LV_OBJ_FLAG_SCROLLABLE);
 
-        keyboard = ui_build_create_keyboard(network_settings, ui_build_get_keyboard());
+        keyboard = ui_build_create_keyboard(network_settings);
 
         lv_obj_t* settings_network_wifi_settings = build_settings_section(network_settings, "Network Settings");
 
@@ -771,4 +774,382 @@ lv_obj_t* build_climate_toggle(lv_obj_t* parent)
         lv_obj_center(label_2);
         apply_header_sm_label_style(label_2);
     return toggle;
+    }
+
+    lv_obj_t* build_forecast_flashcard(lv_obj_t* parent, weather_data_mode_t mode, uint8_t selector)
+    {
+        if(parent == NULL)
+        {
+            ESP_LOGE("ui_build", "Cannot build forecast flashcard with a null parent");
+            return NULL;
+        }
+
+        if(ui_build_snapshot == NULL || ui_build_snapshot->weather_data == NULL)
+        {
+            ESP_LOGE("ui_build", "Cannot build forecast flashcard without weather data");
+            return NULL;
+        }
+
+        if(mode != HOURLY_DATA && mode != DAILY_DATA)
+        {
+            ESP_LOGE("ui_build", "Invalid forecast flashcard mode: %d", mode);
+            return NULL;
+        }
+
+        if((mode == HOURLY_DATA && selector >= WEATHER_HOURLY_COUNT) ||
+           (mode == DAILY_DATA && selector >= WEATHER_DAILY_COUNT))
+        {
+            ESP_LOGE("ui_build", "Forecast flashcard selector %u is out of range for mode %d", selector, mode);
+            return NULL;
+        }
+
+        weather_data_t *weather_data = ui_build_snapshot->weather_data;
+
+        lv_obj_t* flashcard_bg = lv_image_create(parent);
+        lv_image_set_src(flashcard_bg, &gray_bg_400x210);
+        lv_obj_set_flex_flow(flashcard_bg, LV_FLEX_FLOW_ROW);
+
+        if(mode == HOURLY_DATA)
+        {
+            weather_hourly_t *hourly = &weather_data->hourly;
+            char data_buffer[32];
+            lv_obj_t* left_info = lv_obj_create(flashcard_bg);
+            apply_main_style(left_info);
+            lv_obj_set_flex_flow(left_info, LV_FLEX_FLOW_COLUMN);
+            lv_obj_set_flex_align(left_info, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
+            lv_obj_set_size(left_info, lv_pct(59), lv_pct(100));
+            lv_obj_set_style_border_opa(left_info, 0, 0);
+            lv_obj_set_style_bg_opa(left_info, 0, 0);
+
+                snprintf(data_buffer, sizeof(data_buffer), "Is Day: %s", hourly->is_day[selector] ? "true" : "false");
+                lv_obj_t* is_day_label = lv_label_create(left_info);
+                lv_label_set_text(is_day_label, data_buffer);
+                apply_header_sm_label_style(is_day_label);
+
+                snprintf(data_buffer, sizeof(data_buffer), "Temperature: %d°F", (int)hourly->temperature[selector]);
+                lv_obj_t* temp_label = lv_label_create(left_info);
+                lv_label_set_text(temp_label, data_buffer);
+                apply_header_sm_label_style(temp_label);
+
+                snprintf(data_buffer, sizeof(data_buffer), "Feels Like: %d°F", (int)hourly->feels_like[selector]);
+                lv_obj_t* feels_like_label = lv_label_create(left_info);
+                lv_label_set_text(feels_like_label, data_buffer);
+                apply_header_sm_label_style(feels_like_label);
+
+                snprintf(data_buffer, sizeof(data_buffer), "Humidity: %d%%", (int)hourly->humidity[selector]);
+                lv_obj_t* humidity_label = lv_label_create(left_info);
+                lv_label_set_text(humidity_label, data_buffer);
+                apply_header_sm_label_style(humidity_label);
+
+                snprintf(data_buffer, sizeof(data_buffer), "Wind Speed: %d MPH", (int)hourly->wind_speed[selector]);
+                lv_obj_t* wind_speed_label = lv_label_create(left_info);
+                lv_label_set_text(wind_speed_label, data_buffer);
+                apply_header_sm_label_style(wind_speed_label);
+
+                snprintf(data_buffer, sizeof(data_buffer), "Wind Direction: %s", determine_wind_direction(hourly->wind_direction[selector]));
+                lv_obj_t* wind_dir_label = lv_label_create(left_info);
+                lv_label_set_text(wind_dir_label, data_buffer);
+                apply_header_sm_label_style(wind_dir_label);
+
+                snprintf(data_buffer, sizeof(data_buffer), "Wind Gusts: %d MPH", (int)hourly->wind_gusts[selector]);
+                lv_obj_t* wind_gusts_label = lv_label_create(left_info);
+                lv_label_set_text(wind_gusts_label, data_buffer);
+                apply_header_sm_label_style(wind_gusts_label);
+
+                snprintf(data_buffer, sizeof(data_buffer), "Preciptiation Probability: %u%%", (unsigned int)hourly->precipitation_probability[selector]);
+                lv_obj_t* precip_prob_label = lv_label_create(left_info);
+                lv_label_set_text(precip_prob_label, data_buffer);
+                apply_header_sm_label_style(precip_prob_label);
+
+                snprintf(data_buffer, sizeof(data_buffer), "Preciptiation: %.2f", hourly->precipitation[selector]);
+                lv_obj_t* precip_label = lv_label_create(left_info);
+                lv_label_set_text(precip_label, data_buffer);
+                apply_header_sm_label_style(precip_label);
+
+                snprintf(data_buffer, sizeof(data_buffer), "Snow Depth: %.2f cm", hourly->snow_depth[selector]);
+                lv_obj_t* snow_depth_label = lv_label_create(left_info);
+                lv_label_set_text(snow_depth_label, data_buffer);
+                apply_header_sm_label_style(snow_depth_label);
+
+                snprintf(data_buffer, sizeof(data_buffer), "Visibility: %.2f km", hourly->visibility[selector] / 1000.0f);
+                lv_obj_t* visibility_label = lv_label_create(left_info);
+                lv_label_set_text(visibility_label, data_buffer);
+                apply_header_sm_label_style(visibility_label);
+
+            lv_obj_t* right_info = lv_obj_create(flashcard_bg);
+            apply_main_style(right_info);
+            lv_obj_set_flex_flow(right_info, LV_FLEX_FLOW_COLUMN);
+            lv_obj_set_flex_align(right_info, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
+            lv_obj_set_size(right_info, lv_pct(40), lv_pct(100));
+            lv_obj_set_style_border_opa(right_info, 0, 0);
+            lv_obj_set_style_bg_opa(right_info, 0, 0);
+
+                const char *time = strchr(hourly->time[selector], 'T');
+                char time_buffer[6];
+                if(time != NULL)
+                {
+                    snprintf(time_buffer, sizeof(time_buffer), "%.5s", time + 1);
+                }
+                else
+                {
+                    snprintf(time_buffer, sizeof(time_buffer), "--:--");
+                }
+                lv_obj_t* time_label = lv_label_create(right_info);
+                lv_label_set_text(time_label, time_buffer);
+                apply_header_sm_label_style(time_label);
+
+                lv_obj_t* code_icon = lv_image_create(right_info);
+                lv_image_set_src(code_icon, hourly->weather_code_build[selector].image_data_128);
+                lv_obj_set_style_translate_y(code_icon, -12, LV_PART_MAIN); // Move up 12px
+
+                snprintf(data_buffer, sizeof(data_buffer), "%s", hourly->weather_code_build[selector].label);
+                lv_obj_t* code_label = lv_label_create(right_info);
+                lv_label_set_text(code_label, data_buffer);
+                apply_header_sm_label_style(code_label);
+                lv_obj_set_style_translate_y(code_label, -15, LV_PART_MAIN); // Move up 12px
+        }
+
+        else if(mode == DAILY_DATA)
+        {
+            weather_daily_t *daily = &weather_data->daily;
+            char data_buffer[32];
+
+            lv_obj_t* left_info = lv_obj_create(flashcard_bg);
+            apply_main_style(left_info);
+            lv_obj_set_flex_flow(left_info, LV_FLEX_FLOW_COLUMN);
+            lv_obj_set_flex_align(left_info, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
+            lv_obj_set_size(left_info, lv_pct(59), lv_pct(100));
+            lv_obj_set_style_border_opa(left_info, 0, 0);
+            lv_obj_set_style_bg_opa(left_info, 0, 0);
+
+                snprintf(data_buffer, sizeof(data_buffer), "Max Temperature: %d°F", (int)daily->temperature_max[selector]);
+                lv_obj_t* temp_max_label = lv_label_create(left_info);
+                lv_label_set_text(temp_max_label, data_buffer);
+                apply_header_sm_label_style(temp_max_label);
+
+                snprintf(data_buffer, sizeof(data_buffer), "Min Temperature: %d°F", (int)daily->temperature_min[selector]);
+                lv_obj_t* temp_min_label = lv_label_create(left_info);
+                lv_label_set_text(temp_min_label, data_buffer);
+                apply_header_sm_label_style(temp_min_label);
+
+                uint32_t daylight_seconds = daily->daylight_duration[selector] > 0.0f
+                    ? (uint32_t)daily->daylight_duration[selector]
+                    : 0U;
+                uint32_t hours = daylight_seconds / 3600U;
+                uint32_t minutes = (daylight_seconds % 3600U) / 60U;
+
+                snprintf(data_buffer, sizeof(data_buffer), "Daylight Duration: %uh%02um",
+                         (unsigned int)hours, (unsigned int)minutes);
+                lv_obj_t* daylight_label = lv_label_create(left_info);
+                lv_label_set_text(daylight_label, data_buffer);
+                apply_header_sm_label_style(daylight_label);
+
+                const char *time = strchr(daily->sunrise[selector], 'T');
+                char sunrise_buffer[24];
+                snprintf(sunrise_buffer, sizeof(sunrise_buffer), "Sunrise: %.5s",
+                         time != NULL && strlen(time + 1) >= 5 ? time + 1 : "--:--");
+                lv_obj_t* sunrise_label = lv_label_create(left_info);
+                lv_label_set_text(sunrise_label, sunrise_buffer);
+                apply_header_sm_label_style(sunrise_label);
+
+                time = strchr(daily->sunset[selector], 'T');
+                char sunset_buffer[24];
+                snprintf(sunset_buffer, sizeof(sunset_buffer), "Sunset: %.5s",
+                         time != NULL && strlen(time + 1) >= 5 ? time + 1 : "--:--");
+                lv_obj_t* sunset_label = lv_label_create(left_info);
+                lv_label_set_text(sunset_label, sunset_buffer);
+                apply_header_sm_label_style(sunset_label);
+
+            lv_obj_t* right_info = lv_obj_create(flashcard_bg);
+            apply_main_style(right_info);
+            lv_obj_set_flex_flow(right_info, LV_FLEX_FLOW_COLUMN);
+            lv_obj_set_flex_align(right_info, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
+            lv_obj_set_size(right_info, lv_pct(40), lv_pct(100));
+            lv_obj_set_style_border_opa(right_info, 0, 0);
+            lv_obj_set_style_bg_opa(right_info, 0, 0);
+
+                const char *date = daily->date[selector];
+            char date_buffer[6];
+            if(date[4] == '-' && date[7] == '-' && date[5] != '\0' &&
+               date[6] != '\0' && date[8] != '\0' && date[9] != '\0')
+            {
+                snprintf(date_buffer, sizeof(date_buffer), "%.2s/%.2s", date + 5, date + 8);
+            }
+            else
+            {
+                snprintf(date_buffer, sizeof(date_buffer), "--/--");
+            }
+                lv_obj_t* date_label = lv_label_create(right_info);
+            lv_label_set_text(date_label, date_buffer);
+                apply_header_sm_label_style(date_label);
+
+                lv_obj_t* code_icon = lv_image_create(right_info);
+                lv_image_set_src(code_icon, daily->weather_code_build[selector].image_data_128);
+                lv_obj_set_style_translate_y(code_icon, -12, LV_PART_MAIN); // Move up 12px
+
+                snprintf(data_buffer, sizeof(data_buffer), "%s", daily->weather_code_build[selector].label);
+                lv_obj_t* code_label = lv_label_create(right_info);
+                lv_label_set_text(code_label, data_buffer);
+                apply_header_sm_label_style(code_label);
+                lv_obj_set_style_translate_y(code_label, -15, LV_PART_MAIN); // Move up 12px
+        }
+
+        return flashcard_bg;
+    }
+
+    lv_obj_t* build_forecast_contents(lv_obj_t* parent)
+    {
+        weather_data_t *weather_data = ui_build_snapshot->weather_data;
+
+        lv_obj_t* contents = lv_obj_create(parent);
+        lv_obj_set_flex_flow(contents, LV_FLEX_FLOW_COLUMN);
+        lv_obj_set_size(contents, lv_pct(100), lv_pct(80));
+        apply_main_style(contents);
+        lv_obj_set_style_pad_all(contents, 0, 0);
+        lv_obj_set_style_border_width(contents, 0, 0);
+        lv_obj_remove_style(contents, NULL, LV_PART_SCROLLBAR);
+        lv_obj_remove_flag(contents, LV_OBJ_FLAG_SCROLLABLE);
+
+        lv_obj_t* contents_header = lv_obj_create(contents);
+        lv_obj_set_size(contents_header, lv_pct(100), lv_pct(5));
+        lv_obj_set_style_pad_all(contents_header, 0, 0);
+        lv_obj_set_style_border_width(contents_header, 0, 0);
+        lv_obj_set_style_bg_opa(contents_header, 0, 0);
+        lv_obj_set_style_border_opa(contents_header, 0, 0);
+
+        lv_obj_t* flashcards = lv_obj_create(contents);
+        apply_main_style(flashcards);
+        lv_obj_set_size(flashcards, lv_pct(100), lv_pct(44));
+        lv_obj_set_flex_flow(flashcards, LV_FLEX_FLOW_ROW);
+        lv_obj_set_style_pad_all(flashcards, 0, 0);
+        lv_obj_set_style_border_width(flashcards, 0, 0);
+        //lv_obj_set_style_border_opa(flashcards, 0, 0);
+
+            lv_obj_t* background = build_weather_flashcard(flashcards);
+            lv_obj_set_size(background, lv_pct(49), lv_pct(100));
+
+            lv_obj_t* background1 = build_forecast_flashcard(flashcards, HOURLY_DATA, 0);
+            lv_obj_set_size(background1, lv_pct(49), lv_pct(100));
+
+        lv_obj_t* background2 = lv_obj_create(contents);
+        lv_obj_set_size(background2, lv_pct(100), lv_pct(22));
+        apply_main_style(background2);
+        lv_obj_set_flex_flow(background2, LV_FLEX_FLOW_ROW);
+        lv_obj_set_style_pad_all(background2, 0, 0);
+        lv_obj_set_style_border_width(background2, 0, 0);
+        lv_obj_set_style_border_opa(background2, 0, 0);
+        lv_obj_add_flag(background2, LV_OBJ_FLAG_SCROLLABLE);
+        lv_obj_set_scroll_dir(background2, LV_DIR_HOR);
+        lv_obj_set_scrollbar_mode(background2, LV_SCROLLBAR_MODE_AUTO);
+
+            lv_obj_t* hourly_displays[WEATHER_HOURLY_COUNT];
+            for(int i = 0; i < WEATHER_HOURLY_COUNT; i++)
+            {
+                const char *time = strchr(weather_data->hourly.time[i], 'T');
+                char time_buffer[6];
+                if(time != NULL)
+                {
+                    snprintf(time_buffer, sizeof(time_buffer), "%.5s", time + 1);
+                }
+                else
+                {
+                    snprintf(time_buffer, sizeof(time_buffer), "--:--");
+                }
+                weather_code_build_t* code_build = &weather_data->hourly.weather_code_build[i];
+                const lv_image_dsc_t *image = code_build->image_data_48;
+
+                hourly_displays[i] = lv_image_create(background2);
+                lv_image_set_src(hourly_displays[i], &gray_bg_120x100);
+                lv_obj_set_size(hourly_displays[i], lv_pct(14), lv_pct(100));
+                apply_main_style(hourly_displays[i]);
+                lv_obj_set_flex_flow(hourly_displays[i], LV_FLEX_FLOW_COLUMN);
+                lv_obj_set_flex_align(hourly_displays[i],
+                                      LV_FLEX_ALIGN_CENTER,
+                                      LV_FLEX_ALIGN_CENTER,
+                                      LV_FLEX_ALIGN_CENTER);
+                lv_obj_set_style_pad_all(hourly_displays[i], 2, 0);
+                lv_obj_set_style_border_width(hourly_displays[i], 1, 0);
+                lv_obj_remove_flag(hourly_displays[i], LV_OBJ_FLAG_SCROLLABLE);
+
+                    lv_obj_t* icon_image = lv_image_create(hourly_displays[i]);
+                    lv_image_set_src(icon_image, image);
+                    lv_obj_set_size(icon_image, 32, 32);
+                    lv_image_set_scale(icon_image, 171);
+
+                    char hourly_info[40];
+                    snprintf(hourly_info, sizeof(hourly_info), "%s\n%d°F\nRain %u%%",
+                             time_buffer,
+                             (int)weather_data->hourly.temperature[i],
+                             (unsigned int)weather_data->hourly.precipitation_probability[i]);
+                    lv_obj_t* hourly_info_label = lv_label_create(hourly_displays[i]);
+                    lv_label_set_text(hourly_info_label, hourly_info);
+                    lv_obj_set_width(hourly_info_label, lv_pct(100));
+                    lv_obj_set_style_text_align(hourly_info_label, LV_TEXT_ALIGN_CENTER, 0);
+                    apply_header_sm_label_style(hourly_info_label);
+
+                if((i + 1) % 6 == 0)
+                {
+                    vTaskDelay(1);
+                }
+            }
+
+
+        lv_obj_t* background3 = lv_obj_create(contents);
+        lv_obj_set_size(background3, lv_pct(100), lv_pct(22));
+        apply_main_style(background3);
+        lv_obj_set_flex_flow(background3, LV_FLEX_FLOW_ROW);
+        lv_obj_set_style_border_opa(background3, 0, 0);
+        lv_obj_set_style_pad_all(background3, 0, 0);
+        lv_obj_set_style_border_width(background3, 0, 0);
+        lv_obj_set_flex_align(background3,
+                              LV_FLEX_ALIGN_SPACE_BETWEEN,
+                              LV_FLEX_ALIGN_CENTER,
+                              LV_FLEX_ALIGN_CENTER);
+        lv_obj_remove_flag(background3, LV_OBJ_FLAG_SCROLLABLE);
+            lv_obj_t* daily_displays[WEATHER_DAILY_COUNT];
+                for(int i = 0; i < WEATHER_DAILY_COUNT; i++)
+                {
+                    const char *date = weather_data->daily.date[i];
+                    char date_buffer[12];
+                    snprintf(date_buffer, sizeof(date_buffer), "%.2s/%.2s", date + 5, date + 8);
+
+                    weather_code_build_t* code_build = &weather_data->daily.weather_code_build[i];
+                    const lv_image_dsc_t* image = code_build->image_data_48;
+
+                    daily_displays[i] = lv_image_create(background3);
+                    lv_image_set_src(daily_displays[i], &gray_bg_120x100);
+                    lv_obj_set_size(daily_displays[i], lv_pct(14), lv_pct(100));
+                    apply_main_style(daily_displays[i]);
+                    lv_obj_set_flex_flow(daily_displays[i], LV_FLEX_FLOW_COLUMN);
+                    lv_obj_set_flex_align(daily_displays[i],
+                                          LV_FLEX_ALIGN_CENTER,
+                                          LV_FLEX_ALIGN_CENTER,
+                                          LV_FLEX_ALIGN_CENTER);
+                    lv_obj_set_style_pad_all(daily_displays[i], 2, 0);
+                    lv_obj_set_style_border_width(daily_displays[i], 1, 0);
+                    lv_obj_remove_flag(daily_displays[i], LV_OBJ_FLAG_SCROLLABLE);
+
+                        lv_obj_t* icon_image = lv_image_create(daily_displays[i]);
+                        lv_image_set_src(icon_image, image);
+                        lv_obj_set_size(icon_image, 36, 36);
+                        lv_image_set_scale(icon_image, 192);
+
+                        char daily_info[40];
+                        snprintf(daily_info, sizeof(daily_info), "%s\nHigh %d°F\nLow %d°F",
+                                 date_buffer,
+                                 (int)weather_data->daily.temperature_max[i],
+                                 (int)weather_data->daily.temperature_min[i]);
+                        lv_obj_t* daily_info_label = lv_label_create(daily_displays[i]);
+                        lv_label_set_text(daily_info_label, daily_info);
+                        lv_obj_set_width(daily_info_label, lv_pct(100));
+                        lv_obj_set_style_text_align(daily_info_label, LV_TEXT_ALIGN_CENTER, 0);
+                        apply_header_sm_label_style(daily_info_label);
+
+                if((i + 1) % 6 == 0)
+                {
+                    vTaskDelay(1);
+                }
+            }
+
+        return contents;
     }

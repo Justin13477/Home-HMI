@@ -21,4 +21,6 @@ void weather_manager_task(void *args);
 
 void interpret_weather_code(uint8_t code, weather_code_build_t* weather_code_build, bool is_day);
 
+const char* determine_wind_direction(uint16_t degrees);
+
 #endif

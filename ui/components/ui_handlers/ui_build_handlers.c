@@ -2,16 +2,6 @@
 
 lv_obj_t* keyboard;
 
-lv_obj_t* ui_build_get_keyboard()
-{
-    if(keyboard == NULL)
-        {
-            ESP_LOGE("KEYBOARD", "Pointer to keyboard is NULL");
-            return NULL;
-        }
-    return keyboard;
-}
-
 void textarea_focused_cb(lv_event_t *e)
 {
     lv_obj_t* textarea = lv_event_get_target(e);

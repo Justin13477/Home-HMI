@@ -9,7 +9,7 @@
 
 #define WEATHER_UPDATE_INTERVAL pdMS_TO_TICKS(30 * 60 * 1000)
 
-#define WEATHER_URL "https://api.open-meteo.com/v1/forecast?latitude=37.14645&longitude=-94.463&daily=daylight_duration,sunrise,sunset,weather_code&hourly=temperature_2m,relative_humidity_2m,apparent_temperature,is_day,precipitation_probability,precipitation,snow_depth,weather_code,visibility,wind_speed_10m,wind_direction_10m,wind_gusts_10m&current=temperature_2m,is_day,weather_code,relative_humidity_2m,apparent_temperature&timezone=auto&wind_speed_unit=mph&temperature_unit=fahrenheit&precipitation_unit=inch&forecast_hours=24"
+#define WEATHER_URL "https://api.open-meteo.com/v1/forecast?latitude=37.14645&longitude=-94.463&daily=temperature_2m_max,temperature_2m_min,daylight_duration,sunrise,sunset,weather_code&hourly=temperature_2m,relative_humidity_2m,apparent_temperature,is_day,precipitation_probability,precipitation,snow_depth,weather_code,visibility,wind_speed_10m,wind_direction_10m,wind_gusts_10m&current=temperature_2m,is_day,weather_code,relative_humidity_2m,apparent_temperature&timezone=auto&wind_speed_unit=mph&temperature_unit=fahrenheit&precipitation_unit=inch&forecast_hours=24"
 
 static const char* TAG = "WEATHER_MANAGER";
 static esp_http_client_handle_t handle;
@@ -120,6 +120,7 @@ void interpret_weather_code(uint8_t code, weather_code_build_t* weather_code_bui
         }
 
         case WEATHER_FOG:
+        case WEATHER_FOG_DEPOSITING_RIME:
         {
             snprintf(weather_code_build->label, sizeof(weather_code_build->label), "%s", "Fog");
 
@@ -187,6 +188,15 @@ void interpret_weather_code(uint8_t code, weather_code_build_t* weather_code_bui
             break;
         }
 
+        case WEATHER_DRIZZLE_FREEZING_LIGHT:
+        case WEATHER_DRIZZLE_FREEZING_DENSE:
+        {
+            snprintf(weather_code_build->label, sizeof(weather_code_build->label), "%s", "Freezing Drizzle");
+            weather_code_build->image_data_48 = &rain_48;
+            weather_code_build->image_data_128 = &rain_128;
+            break;
+        }
+
         case WEATHER_RAIN_LIGHT:
         {
             snprintf(weather_code_build->label, sizeof(weather_code_build->label), "%s", "Light Rain");
@@ -238,6 +248,15 @@ void interpret_weather_code(uint8_t code, weather_code_build_t* weather_code_bui
             break;
         }
 
+        case WEATHER_RAIN_FREEZING_LIGHT:
+        case WEATHER_RAIN_FREEZING_HEAVY:
+        {
+            snprintf(weather_code_build->label, sizeof(weather_code_build->label), "%s", "Freezing Rain");
+            weather_code_build->image_data_48 = &rain_48;
+            weather_code_build->image_data_128 = &rain_128;
+            break;
+        }
+
         case WEATHER_SNOW_LIGHT:
         {
             snprintf(weather_code_build->label, sizeof(weather_code_build->label), "%s", "Light Snow");
@@ -286,6 +305,16 @@ void interpret_weather_code(uint8_t code, weather_code_build_t* weather_code_bui
                 weather_code_build->image_data_48 = &snow_48;
                 weather_code_build->image_data_128 = &snow_128;
             }
+            break;
+        }
+
+        case WEATHER_SNOW_GRAINS:
+        case WEATHER_SNOW_SHOWERS_LIGHT:
+        case WEATHER_SNOW_SHOWERS_HEAVY:
+        {
+            snprintf(weather_code_build->label, sizeof(weather_code_build->label), "%s", "Snow");
+            weather_code_build->image_data_48 = &snow_48;
+            weather_code_build->image_data_128 = &snow_128;
             break;
         }
 
@@ -388,6 +417,14 @@ void interpret_weather_code(uint8_t code, weather_code_build_t* weather_code_bui
                 weather_code_build->image_data_48 = &thunderstorms_extreme_night_48;
                 weather_code_build->image_data_128 = &thunderstorms_extreme_night_128;
             }
+            break;
+        }
+
+        default:
+        {
+            snprintf(weather_code_build->label, sizeof(weather_code_build->label), "%s", "Cloudy");
+            weather_code_build->image_data_48 = &cloudy_48;
+            weather_code_build->image_data_128 = &cloudy_128;
             break;
         }
     }
@@ -653,6 +690,34 @@ void parse_weather_data(char* buffer, size_t size, weather_data_t *data)
             }
         }
 
+        cJSON* temperature_max = cJSON_GetObjectItemCaseSensitive(daily, "temperature_2m_max");
+        if(cJSON_IsArray(temperature_max))
+        {
+            int count = cJSON_GetArraySize(temperature_max);
+            for(int i = 0; i < count && i < WEATHER_DAILY_COUNT; i++)
+            {
+                cJSON* value = cJSON_GetArrayItem(temperature_max, i);
+                if(cJSON_IsNumber(value))
+                {
+                    data->daily.temperature_max[i] = (float)value->valuedouble;
+                }
+            }
+        }
+
+        cJSON* temperature_min = cJSON_GetObjectItemCaseSensitive(daily, "temperature_2m_min");
+        if(cJSON_IsArray(temperature_min))
+        {
+            int count = cJSON_GetArraySize(temperature_min);
+            for(int i = 0; i < count && i < WEATHER_DAILY_COUNT; i++)
+            {
+                cJSON* value = cJSON_GetArrayItem(temperature_min, i);
+                if(cJSON_IsNumber(value))
+                {
+                    data->daily.temperature_min[i] = (float)value->valuedouble;
+                }
+            }
+        }
+
         cJSON* daylight_duration = cJSON_GetObjectItemCaseSensitive(daily, "daylight_duration");
         if(cJSON_IsArray(daylight_duration))
         {
@@ -776,4 +841,14 @@ void weather_manager_init()
     weather_data_t* weather_ptr = &weather_data;
     xQueueSend(weather_queue, &weather_ptr, portMAX_DELAY);
     
+}
+
+const char* determine_wind_direction(uint16_t degrees)
+{
+    static const char* directions[] =
+    {
+        "N", "NE", "E", "SE", "S", "SW", "W", "NW" 
+    };
+
+    return directions[((degrees + 22) % 360) / 45];
 }

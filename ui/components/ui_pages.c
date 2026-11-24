@@ -41,8 +41,6 @@ lv_obj_t* build_persistent_ui(lv_obj_t* parent)
         lv_obj_set_flex_flow(contents, LV_FLEX_FLOW_COLUMN);
 
             
-        keyboard = ui_build_create_keyboard(parent, ui_build_get_keyboard());
-        lv_obj_add_flag(keyboard, LV_OBJ_FLAG_HIDDEN | LV_OBJ_FLAG_FLOATING);
     return contents;
 }
 
@@ -89,15 +87,7 @@ lv_obj_t* build_lighting_page()
 
         lv_obj_t* header_ribbon_h = build_header_ribbon(contents, build_header_ribbon_page_lighting);
 
-        lv_obj_t* background = lv_obj_create(contents);
-        lv_obj_set_size(background, lv_pct(100), lv_pct(35));
-
-        lv_obj_t* background2 = lv_obj_create(contents);
-        lv_obj_set_size(background2, lv_pct(100), lv_pct(20));
-        apply_main_style(background2);
-
-        lv_obj_t* background3 = lv_obj_create(contents);
-        lv_obj_set_size(background3, lv_pct(100), lv_pct(20));
+        
 
     
     return lighting_page;
@@ -116,11 +106,14 @@ lv_obj_t* build_climate_page()
             {
                 lv_obj_t* climate = build_climate_contents(contents);
             }
-            
+        else if(current_subpage_climate == SUBPAGE_WEATHER)
+            {
+                lv_obj_t* forecast = build_forecast_contents(contents);
+            }
 
         lv_obj_t* page_toggle = build_climate_toggle(contents);
-        lv_obj_set_x(page_toggle, lv_pct(40));
-        lv_obj_set_y(page_toggle, lv_pct(25));
+        lv_obj_set_x(page_toggle, lv_pct(39));
+        lv_obj_set_y(page_toggle, lv_pct(18));
         
     return climate_page;
 }
