@@ -1,159 +1,121 @@
 # Home HMI
-### ESP32-P4 Embedded Home Automation Interface
 
-A custom embedded home automation interface built around the ESP32-P4 microcontroller and a 7-inch 1024×600 touchscreen display. The project focuses on modular firmware architecture, real-time task management, graphical interface development, and distributed IoT communication.
+A work-in-progress home monitoring and control interface for an ESP32-P4. It runs on a 7-inch, 1024 × 600 touchscreen and combines an LVGL user interface with MQTT sensor data and an online weather forecast.
 
-The long-term goal is to develop a centralized home interface capable of monitoring environmental conditions, managing connected devices, and communicating with distributed sensor modules through MQTT.
+The firmware is being developed as a modular ESP-IDF project. Some pages and configuration flows are still prototypes; see [Development status](#development-status) for current scope.
 
----
+## Hardware and software
 
-## Project Overview
-
-Home HMI is an independently developed embedded systems project using ESP-IDF and LVGL.
-
-The firmware is structured around modular components responsible for application initialization, user interface management, networking, and data handling.
-
-The interface uses a dynamic page architecture with reusable UI components and shared application state.
-
-The project is being developed with maintainability and extensibility in mind, allowing additional functionality to be integrated without unnecessarily coupling individual subsystems.
-
-## Hardware
-
-| Component | Description |
+| Area | Details |
 |---|---|
-| Microcontroller | ESP32-P4 |
-| Display | 7-inch IPS touchscreen |
-| Resolution | 1024 × 600 |
-| Touch Controller | GT911 |
-| Display Framework | LVGL 9.1 |
+| MCU | ESP32-P4 |
+| Display | 7-inch IPS touchscreen, 1024 × 600 |
+| Touch controller | GT911 |
+| UI | LVGL 9.1 with Espressif's LVGL port |
+| Framework | ESP-IDF 5.5.4 |
+| Language | C |
+| Build system | CMake and the ESP-IDF build tools |
+| Network | Wi-Fi station, MQTT, and HTTPS weather requests |
 
-## Software Stack
+Use a board and display assembly compatible with the project's display, touch, power, and network configuration. Board-specific setup is in `peripheral/` and `sdkconfig.defaults`.
 
-- **ESP-IDF 5.5.4** – Embedded development framework.
-- **C** – Primary firmware programming language.
-- **FreeRTOS** – Task scheduling and synchronization.
-- **LVGL 9.1** – Graphical user interface development.
-- **CMake** – Build configuration and component management.
-- **MQTT** – Messaging protocol for distributed IoT communication.
-- **Git** – Version control.
+## Current functionality
 
-## Firmware Architecture
+- Touch navigation between Home, Climate, Lighting, and Settings pages.
+- Home dashboard with weather, climate, and lighting cards.
+- Climate page with a toggle between sensor readings and weather forecasts.
+- Current conditions and forecast data fetched from [Open-Meteo](https://open-meteo.com/).
+- Hourly forecast cards with time, condition icon, temperature, and precipitation chance; the hourly row scrolls horizontally.
+- Daily forecast cards with date, condition icon, and high/low temperatures.
+- MQTT input for SHT41 temperature/humidity and VEML7700 ambient-light sensor data.
+- FreeRTOS tasks, queues, and shared data snapshots to pass sensor and weather updates to the UI.
 
-The project follows a modular component-based architecture using ESP-IDF's component management system.
+The Lighting page and some settings flows are still under development; their presence in the navigation does not imply that device controls or persistent settings are complete.
 
-Major subsystems include:
+## Data flow
 
-### Application Initialization
-Responsible for initializing hardware and application-level components.
+```text
+SHT41 / VEML7700
+        │ MQTT
+        ▼
+ MQTT manager ──► message queue ──► data task ──► shared snapshot ──► LVGL pages
 
-### User Interface
-Built using LVGL 9.1.
+ Open-Meteo ──HTTPS──► weather manager ──► weather queue ──► data task
+```
 
-Features include:
-- Dynamic page construction.
-- Reusable UI components.
-- Page switching and navigation.
-- Shared application state.
-- Touchscreen interaction.
-- Dynamic data presentation.
+The MQTT client subscribes to these topics:
 
-### Networking
-Responsible for network connectivity and MQTT communication.
+| Topic | Expected JSON fields |
+|---|---|
+| `home/sensor/sht41/data` | `temp`, `hum` |
+| `home/sensor/sht41/state` | `state` |
+| `home/sensor/veml7700/data` | `lux` |
+| `home/sensor/veml7700/state` | `state` |
 
-The intended architecture supports communication between the HMI and distributed environmental sensor modules.
+Weather is configured for current conditions and hourly and daily forecasts. The refresh interval is 30 minutes. The weather task currently waits for that interval before its first request, so forecast data may not appear immediately after boot.
 
-### Data Management
-Provides a centralized approach to application data handling.
+## Project layout
 
-Includes:
-- Shared application state.
-- Data snapshots.
-- Mutex-protected access to shared resources.
-- Structured sensor data.
+| Path | Purpose |
+|---|---|
+| `main/` | Application entry point and hardware/system initialization |
+| `peripheral/` | Display, I2C, backlight, GPIO, and board-support code |
+| `ui/` | LVGL pages, reusable components, styles, and event handlers |
+| `network/` | Wi-Fi station and MQTT client |
+| `weather/` | Open-Meteo HTTPS client and weather-data parsing |
+| `data/` | Shared application state, queues, snapshots, and sensor handlers |
+| `util/` | Shared data types and utilities |
+| `assets/` | LVGL image and background assets |
+| `managed_components/` | ESP-IDF Component Manager dependencies |
 
-### Real-Time Operations
-Uses FreeRTOS to coordinate independent application operations.
+## Configure for your device
 
-Implemented concepts include:
-- Task management.
-- Inter-task communication.
-- Queues.
-- Mutexes.
-- Binary semaphores.
-- Task synchronization.
+Before building for your network:
 
-## Current Development
+1. Configure Wi-Fi credentials. The current prototype defines them in [`network/wifi_manager.c`](./network/wifi_manager.c). **Do not commit real credentials.** Move credentials to a private configuration mechanism such as Kconfig or NVS, and remove password logging before sharing or deploying the firmware.
+2. Set the MQTT broker URI in [`main/system_init.c`](./main/system_init.c). The broker must be reachable from the device's network.
+3. Set the forecast location and requested variables in [`weather/weather_manager.c`](./weather/weather_manager.c). Open-Meteo is accessed over HTTPS; the current request does not require an API key.
+4. Confirm the board-specific display, touch, and network settings in `peripheral/` and `sdkconfig.defaults`.
 
-The project is actively under development.
+The current Wi-Fi initialization waits for a successful connection before starting the application tasks. If the device appears to stall during startup, check its Wi-Fi configuration and the serial log.
 
-Current development focuses on:
-- Refining firmware architecture and component separation.
-- Improving code organization and maintainability.
-- Expanding dynamic UI functionality.
-- Developing networking and MQTT integration.
-- Integrating environmental sensor data.
-- Improving memory management and runtime stability.
+## Build, flash, and monitor
 
-## Planned Features
+Install ESP-IDF **v5.5.4** and its ESP32-P4 toolchain, then open a terminal where the ESP-IDF environment is active. From the repository root:
 
-- Environmental monitoring.
-- Temperature and humidity monitoring.
-- Ambient light measurement.
-- Distributed wireless sensor modules.
-- Centralized MQTT communication.
-- Home automation device controls.
-- Historical sensor data storage.
-- Integration with a local home server.
-- Smart Lighting
-
-## Development Environment
-
-The project is developed using:
-
-- Windows.
-- Visual Studio Code.
-- ESP-IDF 5.5.4.
-- CMake.
-- Git.
-### Project Gallery
-### Home Interface
-![Home HMI](assets/home-hmi-prototype.jpg)
-
-### Climate Interface
-![Home HMI](assets/home-hmi-climate.jpg)
-
-### Forecaset Interface
-![Home HMI](assets/home-hmi-forecast.jpg)
-
-### Settings Interface
-![HMI Settings](assets/home-hmi-settings.jpg)
-
-### Building
-
-This project uses the ESP-IDF build system.
-
-After configuring the ESP-IDF development environment:
-
+```sh
 idf.py set-target esp32p4
 idf.py build
+```
 
-To flash the firmware:
+To flash and open the serial monitor, replace `COMx` with the board's serial port:
 
-idf.py -p PORT flash monitor
+```sh
+idf.py -p COMx flash monitor
+```
 
-Replace PORT with the serial port associated with your development board.
+On Linux or macOS, use the appropriate serial device (for example, `/dev/ttyUSB0`) instead of `COMx`. The ESP-IDF Component Manager uses `main/idf_component.yml` to resolve project dependencies during configuration.
 
-Additional hardware and component dependencies may be required depending on the project configuration.
+## Screenshots
 
-Project Philosophy
+### Home
+![Home dashboard](assets/home-hmi-prototype.jpg)
 
-This project is intended to be more than a functional home automation interface.
+### Climate
+![Climate page](assets/home-hmi-climate.jpg)
 
-It is an opportunity to develop a deeper understanding of embedded software engineering, including firmware architecture, real-time operating systems, peripheral communication, memory management, and distributed systems.
+### Forecast
+![Forecast page](assets/home-hmi-forecast.jpg)
 
-Development prioritizes modularity, maintainability, and understanding the underlying hardware and software rather than relying on high-level abstractions.
+### Settings
+![Settings page](assets/home-hmi-settings.jpg)
 
-Status: Active Development
-Platform: ESP32-P4
-Language: C
-Framework: ESP-IDF
+## Development status
+
+This is an active personal project. The display, touch interface, page navigation, weather retrieval, and MQTT sensor-data path are present. Lighting controls, robust user-managed network configuration, and longer-term data storage are areas for further development.
+
+## Troubleshooting
+
+- **Startup waits after power-on:** Wi-Fi initialization waits for a connection. Confirm the configured network is available and inspect the serial monitor.
+- **Sensor values are missing:** Verify the MQTT broker is reachable and that the devices publish to the topics and JSON fields listed above.
+- **Build cannot find a dependency:** Run the build from an ESP-IDF 5.5.4 environment and allow Component Manager to resolve the manifest dependencies.
